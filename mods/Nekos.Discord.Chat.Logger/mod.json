@@ -1,0 +1,23 @@
+{
+	"Name": "Neko's Discord Chat Logger",
+	"Description": "",
+	"Version": "1.0.0",
+	"LoadPriority": 20,
+	"RequiredOnClient": false,
+	"ConVars": [
+		{
+			"Name": "discordlogger_webhook",
+			"DefaultValue": ""
+		}
+	],
+
+	"Scripts": [
+		{
+			"Path": "discordlogger.nut",
+			"RunOn": "SERVER",
+			"ServerCallback": {
+				"After": "discordlogger_init"
+			}
+		}
+	]
+}
