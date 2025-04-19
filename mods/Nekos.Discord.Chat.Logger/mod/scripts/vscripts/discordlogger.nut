@@ -1,5 +1,10 @@
 global function discordlogger_init
 
+struct
+{
+int howmanytimesmapchanged = 0
+}file
+
 void function discordlogger_init() 
 {
 #if SERVER
@@ -101,6 +106,9 @@ NSHttpRequest( request )
 
 void function MapChange()
 {
+if( file.howmanytimesmapchanged != 0 )
+return
+file.howmanytimesmapchanged = 1
 string message = "Map Changed To " + MAP_NAME_TABLE[GetMapName()] + " [" + GetMapName() + "]"
 SendMessageToDiscord( message, false )
 message = "```" + message + "```"
