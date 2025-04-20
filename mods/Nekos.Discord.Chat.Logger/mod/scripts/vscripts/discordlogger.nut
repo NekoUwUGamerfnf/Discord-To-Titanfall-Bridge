@@ -44,20 +44,26 @@ table<string, string> MAP_NAME_TABLE = {
 #if SERVER
 ClServer_MessageStruct function LogMessage(ClServer_MessageStruct message) 
 {
-    string msg = message.message.tolower()
+    string msg = message.message
     if (msg.len() == 0)
     return message
     if (format("%c", msg[0]) == "!" )
     return message
+    array<string> msgArr = split(msg, "\"")
+    foreach( string newmsg in msgArr )
+    msg = newmsg
     string playername = "Someone Said" // If Player Is Invalid Do This
     string newmessage = ""
     if( IsValid( message.player ) )
+    {
+    if( message.player.IsPlayer() )
     playername = message.player.GetPlayerName()
+    }
     newmessage = playername
-    newmessage = newmessage + ": " + message.message
+    newmessage = newmessage + ": " + msg
     SendMessageToDiscord( newmessage, false )
     newmessage = "**" + playername + "**"
-    newmessage = newmessage + ": " + message.message
+    newmessage = newmessage + ": " + msg
     SendMessageToDiscord( newmessage, true, false )
     return message
 }
