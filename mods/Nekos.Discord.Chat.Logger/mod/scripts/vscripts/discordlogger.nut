@@ -50,7 +50,9 @@ ClServer_MessageStruct function LogMessage(ClServer_MessageStruct message)
     if (format("%c", msg[0]) == "!" )
     return message
     array<string> msgArr = split(msg, "\"")
-    foreach( string newmsg in msgArr )
+    string newmsg = ""
+    foreach( string newnewmsg in msgArr )
+    newmsg = newmsg + newnewmsg
     msg = newmsg
     string playername = "Someone Said" // If Player Is Invalid Do This
     string newmessage = ""
