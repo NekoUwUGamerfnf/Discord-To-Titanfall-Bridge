@@ -53,6 +53,7 @@ ClServer_MessageStruct function LogMessage(ClServer_MessageStruct message)
     while( msgchanged != 0 )
     {
     msg = StringReplace( msg, "\"", "''" )
+    msg = StringReplace( msg, "\\", "/" )
     msgchanged = msgchanged - 1
     }
     string playername = "Someone Said" // If Player Is Invalid Do This
