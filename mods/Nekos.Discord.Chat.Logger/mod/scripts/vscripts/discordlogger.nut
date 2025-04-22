@@ -49,13 +49,9 @@ ClServer_MessageStruct function LogMessage(ClServer_MessageStruct message)
     return message
     if (format("%c", msg[0]) == "!" )
     return message
-    int msgchanged = 300
-    while( msgchanged != 0 )
-    {
-    msg = StringReplace( msg, "\"", "''" )
-    msg = StringReplace( msg, "\\", "/" )
-    msgchanged = msgchanged - 1
-    }
+    msg = StringReplace( msg, "\"", "''", true )
+    msg = StringReplace( msg, "\\", "\\\\", true )
+    msg = StringReplace( msg, "\\", "\\\\", true )
     string playername = "Someone Said" // If Player Is Invalid Do This
     string newmessage = ""
     if( IsValid( message.player ) )
