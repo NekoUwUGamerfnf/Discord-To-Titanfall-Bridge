@@ -8,6 +8,8 @@ int howmanytimesmapchanged = 0
 void function discordlogger_init() 
 {
 #if SERVER
+if ( IsSingleplayer() )
+return
 AddCallback_OnReceivedSayTextMessage( LogMessage )
 AddCallback_OnClientConnected( LogJoin )
 AddCallback_OnClientDisconnected( LogDisconnect )
