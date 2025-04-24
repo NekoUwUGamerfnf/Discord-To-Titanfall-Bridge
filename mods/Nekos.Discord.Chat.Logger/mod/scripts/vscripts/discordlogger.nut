@@ -11,11 +11,12 @@ void function discordlogger_init()
 AddCallback_OnReceivedSayTextMessage( LogMessage )
 AddCallback_OnClientConnected( LogJoin )
 AddCallback_OnClientDisconnected( LogDisconnect )
-AddCallback_GameStateEnter( eGameState.Prematch, MapChange )
+MapChange()
 #endif
 }
 
 table<string, string> MAP_NAME_TABLE = {
+    mp_lobby = "Lobby",
     mp_angel_city = "Angel City",
     mp_black_water_canal = "Black Water Canal",
     mp_coliseum = "Coliseum",
@@ -40,6 +41,33 @@ table<string, string> MAP_NAME_TABLE = {
     mp_thaw = "Exoplanet",
     mp_wargames = "Wargames"
 }
+
+array<string> SUPPORTED_MAP_NAMES = [
+"mp_wargames",
+"mp_thaw",
+"mp_rise",
+"mp_relic02",
+"mp_lf_uma",
+"mp_lf_traffic",
+"mp_lf_township",
+"mp_lf_stacks",
+"mp_lf_meadow",
+"mp_lf_deck",
+"mp_homestead",
+"mp_grave",
+"mp_glitch",
+"mp_forwardbase_kodai",
+"mp_eden",
+"mp_drydock",
+"mp_crashsite3",
+"mp_complex3",
+"mp_colony02",
+"mp_coliseum_column",
+"mp_coliseum",
+"mp_black_water_canal",
+"mp_angel_city",
+"mp_lobby"
+]
 
 #if SERVER
 ClServer_MessageStruct function LogMessage(ClServer_MessageStruct message) 
@@ -115,7 +143,9 @@ void function MapChange()
 if( file.howmanytimesmapchanged != 0 )
 return
 file.howmanytimesmapchanged = 1
-string message = "Map Changed To " + MAP_NAME_TABLE[GetMapName()] + " [" + GetMapName() + "]"
+string message = "Map Changed To [" + GetMapName() + "]"
+if( SUPPORTED_MAP_NAMES.contains( GetMapName() ) )
+message = "Map Changed To " + MAP_NAME_TABLE[GetMapName()] + " [" + GetMapName() + "]"
 SendMessageToDiscord( message, false )
 message = "```" + message + "```"
 SendMessageToDiscord( message, true, false )
