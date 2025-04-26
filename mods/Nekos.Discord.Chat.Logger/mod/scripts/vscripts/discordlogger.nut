@@ -9,6 +9,7 @@ AddCallback_OnReceivedSayTextMessage( LogMessage )
 AddCallback_OnClientConnected( LogJoin )
 AddCallback_OnClientDisconnected( LogDisconnect )
 MapChange()
+thread LastLoggedMessage()
 #endif
 }
 
@@ -97,7 +98,9 @@ void function LogJoin( entity player )
 {
 if( !IsValid( player ) )
 return
-string playername = player.GetPlayerName()
+string playername = "Someone"
+if( player.IsPlayer() )
+playername = player.GetPlayerName()
 string message = playername + " Has Joined The Server [Players On The Server " + GetPlayerArray().len() + "]"
 SendMessageToDiscord( message, false )
 message = "```" + message + "```"
@@ -108,12 +111,25 @@ void function LogDisconnect( entity player )
 {
 if( !IsValid( player ) )
 return
-string playername = player.GetPlayerName()
+string playername = "Someone"
+if( player.IsPlayer() )
+playername = player.GetPlayerName()
 int playerarray = GetPlayerArray().len() - 1
 string message = playername + " Has Left The Server [Players On The Server " + playerarray + "]"
 SendMessageToDiscord( message, false )
 message = "```" + message + "```"
 SendMessageToDiscord( message, true, false )
+}
+
+void function LastLoggedMessage()
+{
+array<string> messages = split( GetConVarString( "discordlogger_last_log_of_chat" ), "\"" )
+SetConVarString( "discordlogger_last_log_of_chat", "" )
+foreach( string message in messages )
+{
+wait 0.1
+SendMessageToDiscord( message, true, false )
+}
 }
 
 void function SendMessageToDiscord( string message, bool sendmessage = true, bool printmessage = true )
@@ -122,6 +138,12 @@ if( printmessage == true )
 print( "[DiscordLogger] Sending [" + message + "] To Discord" )
 if( sendmessage == false )
 return // Anything Past This Is Sending The Message To Discord
+ if( GetGameState() == eGameState.Postmatch )
+ {
+ string messagetolog = GetConVarString( "discordlogger_last_log_of_chat" ) + "\"" + message
+ SetConVarString( "discordlogger_last_log_of_chat", messagetolog )
+ return
+ }
 HttpRequest request
 request.method = HttpRequestMethod.POST
 request.url = GetConVarString( "discordlogger_webhook" )
