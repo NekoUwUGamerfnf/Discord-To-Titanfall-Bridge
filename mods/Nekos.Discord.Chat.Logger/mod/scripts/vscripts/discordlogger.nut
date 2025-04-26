@@ -96,11 +96,12 @@ ClServer_MessageStruct function LogMessage(ClServer_MessageStruct message)
 
 void function LogJoin( entity player )
 {
-if( !IsValid( player ) )
-return
 string playername = "Someone"
+if( IsValid( player ) )
+{
 if( player.IsPlayer() )
 playername = player.GetPlayerName()
+}
 string message = playername + " Has Joined The Server [Players On The Server " + GetPlayerArray().len() + "]"
 SendMessageToDiscord( message, false )
 message = "```" + message + "```"
@@ -109,11 +110,12 @@ SendMessageToDiscord( message, true, false )
 
 void function LogDisconnect( entity player )
 {
-if( !IsValid( player ) )
-return
 string playername = "Someone"
+if( IsValid( player ) )
+{
 if( player.IsPlayer() )
 playername = player.GetPlayerName()
+}
 int playerarray = GetPlayerArray().len() - 1
 string message = playername + " Has Left The Server [Players On The Server " + playerarray + "]"
 SendMessageToDiscord( message, false )
