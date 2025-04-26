@@ -8,10 +8,16 @@ return
 AddCallback_OnReceivedSayTextMessage( LogMessage )
 AddCallback_OnClientConnected( LogJoin )
 AddCallback_OnClientDisconnected( LogDisconnect )
+DiscordLoggerCreateProp()
 MapChange()
 thread LastLoggedMessage()
 #endif
 }
+
+struct
+{
+entity prop
+}file
 
 table<string, string> MAP_NAME_TABLE = {
     mp_lobby = "Lobby",
@@ -94,6 +100,14 @@ ClServer_MessageStruct function LogMessage(ClServer_MessageStruct message)
     return message
 }
 
+void function DiscordLoggerCreateProp()
+{
+entity prop = CreateEntity( "prop_script" )
+DispatchSpawn( prop )
+prop.kv.VisibilityFlags = ~ENTITY_VISIBLE_TO_EVERYONE
+file.prop = prop
+}
+
 void function LogJoin( entity player )
 {
 string playername = "Someone"
@@ -136,16 +150,36 @@ SendMessageToDiscord( message, true, false )
 
 void function SendMessageToDiscord( string message, bool sendmessage = true, bool printmessage = true )
 {
+thread SendMessageToDiscord_thread( message, sendmessage, printmessage )
+}
+
+void function SendMessageToDiscord_thread( string message, bool sendmessage = true, bool printmessage = true )
+{
 if( printmessage == true )
 print( "[DiscordLogger] Sending [" + message + "] To Discord" )
 if( sendmessage == false )
 return // Anything Past This Is Sending The Message To Discord
+entity prop = file.prop
+prop.EndSignal( "OnDestroy" )
+prop.EndSignal( "OnDeath" ) // Lets Try To Use This
+OnThreadEnd(
+	function() : ( prop, message )
+	{
+		if ( !IsValid( prop ) || !IsAlive( prop ) )
+        {
+        string messagetolog = GetConVarString( "discordlogger_last_log_of_chat" ) + "\"" + message
+        SetConVarString( "discordlogger_last_log_of_chat", messagetolog )
+        }	
+	}
+)
+/*
  if( GetGameState() == eGameState.Postmatch )
  {
  string messagetolog = GetConVarString( "discordlogger_last_log_of_chat" ) + "\"" + message
  SetConVarString( "discordlogger_last_log_of_chat", messagetolog )
  return
  }
+*/
 HttpRequest request
 request.method = HttpRequestMethod.POST
 request.url = GetConVarString( "discordlogger_webhook" )
