@@ -8,16 +8,10 @@ return
 AddCallback_OnReceivedSayTextMessage( LogMessage )
 AddCallback_OnClientConnected( LogJoin )
 AddCallback_OnClientDisconnected( LogDisconnect )
-DiscordLoggerCreateProp()
 MapChange()
 thread LastLoggedMessage()
 #endif
 }
-
-struct
-{
-entity prop
-}file
 
 table<string, string> MAP_NAME_TABLE = {
     mp_lobby = "Lobby",
@@ -100,14 +94,6 @@ ClServer_MessageStruct function LogMessage(ClServer_MessageStruct message)
     return message
 }
 
-void function DiscordLoggerCreateProp()
-{
-entity prop = CreateEntity( "prop_script" )
-DispatchSpawn( prop )
-prop.kv.VisibilityFlags = ~ENTITY_VISIBLE_TO_EVERYONE
-file.prop = prop
-}
-
 void function LogJoin( entity player )
 {
 string playername = "Someone"
@@ -143,7 +129,7 @@ array<string> messages = split( GetConVarString( "discordlogger_last_log_of_chat
 SetConVarString( "discordlogger_last_log_of_chat", "" )
 foreach( string message in messages )
 {
-wait 0.1
+WaitFrame()
 SendMessageToDiscord( message, true, false )
 }
 }
@@ -159,27 +145,12 @@ if( printmessage == true )
 print( "[DiscordLogger] Sending [" + message + "] To Discord" )
 if( sendmessage == false )
 return // Anything Past This Is Sending The Message To Discord
-entity prop = file.prop
-prop.EndSignal( "OnDestroy" )
-prop.EndSignal( "OnDeath" ) // Lets Try To Use This
-OnThreadEnd(
-	function() : ( prop, message )
-	{
-		if ( !IsValid( prop ) || !IsAlive( prop ) )
-        {
-        string messagetolog = GetConVarString( "discordlogger_last_log_of_chat" ) + "\"" + message
-        SetConVarString( "discordlogger_last_log_of_chat", messagetolog )
-        }	
-	}
-)
-/*
  if( GetGameState() == eGameState.Postmatch )
  {
  string messagetolog = GetConVarString( "discordlogger_last_log_of_chat" ) + "\"" + message
  SetConVarString( "discordlogger_last_log_of_chat", messagetolog )
  return
  }
-*/
 HttpRequest request
 request.method = HttpRequestMethod.POST
 request.url = GetConVarString( "discordlogger_webhook" )
@@ -190,6 +161,7 @@ request.body = "{ " +
 request.headers = {
     ["Content-Type"] = ["application/json"]
 }
+wait 0.15
 NSHttpRequest( request )
 }
 
