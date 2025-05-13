@@ -58,7 +58,9 @@ ClServer_MessageStruct function LogMessage(ClServer_MessageStruct message)
     newmessage = playername
     else
     {
-    if( playerteam <= 1 ) // Because A Table Doesn't Work We Are Gonna Try This
+    if( playerteam <= 0 ) // Because A Table Doesn't Work We Are Gonna Try This
+    newmessage = "TEAM_SPECTATOR"
+    if( playerteam == 1 )
     newmessage = "TEAM_UNASSIGNED"
     if( playerteam == 2 )
     newmessage = "TEAM_MILITIA"
