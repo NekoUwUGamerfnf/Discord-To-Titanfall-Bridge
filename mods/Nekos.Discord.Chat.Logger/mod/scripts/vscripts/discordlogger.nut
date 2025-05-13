@@ -59,15 +59,15 @@ ClServer_MessageStruct function LogMessage(ClServer_MessageStruct message)
     else
     {
     if( playerteam <= 0 ) // Because A Table Doesn't Work We Are Gonna Try This
-    newmessage = "TEAM_SPECTATOR"
+    newmessage = "Spec"
     if( playerteam == 1 )
-    newmessage = "TEAM_UNASSIGNED"
+    newmessage = "None"
     if( playerteam == 2 )
-    newmessage = "TEAM_MILITIA"
+    newmessage = "IMC"
     if( playerteam == 3 )
-    newmessage = "TEAM_IMC"
+    newmessage = "Militia"
     if( playerteam >= 4 )
-    newmessage = "TEAM_BOTH"
+    newmessage = "Both"
     newmessage = "[TEAM (" + newmessage + ")]" + playername
     }
     newmessage = newmessage + ": " + msg
@@ -76,16 +76,16 @@ ClServer_MessageStruct function LogMessage(ClServer_MessageStruct message)
     newmessage = "**" + playername + "**"
     else
     {
-    if( playerteam <= 0 ) // Because A Table Doesn't Work We Are Gonna Try This
-    newmessage = "TEAM_SPECTATOR"
+    if( playerteam <= 0 )
+    newmessage = "Spec"
     if( playerteam == 1 )
-    newmessage = "TEAM_UNASSIGNED"
+    newmessage = "None"
     if( playerteam == 2 )
-    newmessage = "TEAM_MILITIA"
+    newmessage = "IMC"
     if( playerteam == 3 )
-    newmessage = "TEAM_IMC"
+    newmessage = "Militia"
     if( playerteam >= 4 )
-    newmessage = "TEAM_BOTH"
+    newmessage = "Both"
     newmessage = "**[TEAM (" + newmessage + ")]" + playername + "**"
     }
     newmessage = newmessage + ": " + msg
