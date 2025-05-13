@@ -37,35 +37,8 @@ table<string, string> MAP_NAME_TABLE = {
     mp_relic02 = "Relic",
     mp_rise = "Rise",
     mp_thaw = "Exoplanet",
-    mp_wargames = "Wargames"
+    mp_wargames = "Wargames",
 }
-
-array<string> SUPPORTED_MAP_NAMES = [
-"mp_wargames",
-"mp_thaw",
-"mp_rise",
-"mp_relic02",
-"mp_lf_uma",
-"mp_lf_traffic",
-"mp_lf_township",
-"mp_lf_stacks",
-"mp_lf_meadow",
-"mp_lf_deck",
-"mp_homestead",
-"mp_grave",
-"mp_glitch",
-"mp_forwardbase_kodai",
-"mp_eden",
-"mp_drydock",
-"mp_crashsite3",
-"mp_complex3",
-"mp_colony02",
-"mp_coliseum_column",
-"mp_coliseum",
-"mp_black_water_canal",
-"mp_angel_city",
-"mp_lobby"
-]
 
 #if SERVER
 ClServer_MessageStruct function LogMessage(ClServer_MessageStruct message) 
@@ -78,14 +51,27 @@ ClServer_MessageStruct function LogMessage(ClServer_MessageStruct message)
     msg = StringReplace( msg, "\"", "''", true )
     msg = StringReplace( msg, "\\", "\\\\", true )
     msg = StringReplace( msg, "\\", "\\\\", true )
-    string playername = "Someone Said" // If Player Is Invalid Do This
     string newmessage = ""
-    if( IsValid( message.player ) )
-    {
-    if( message.player.IsPlayer() )
-    playername = message.player.GetPlayerName()
-    }
+    string playername = message.player.GetPlayerName()
+    int playerteam = message.player.GetTeam()
+    if( !message.isTeam )
     newmessage = playername
+    else
+    {
+    if( playerteam <= 1 ) // Because A Table Doesn't Work We Are Gonna Try This
+    newmessage = "TEAM_UNASSIGNED"
+    if( playerteam == 2 )
+    newmessage = "TEAM_MILITIA"
+    if( playerteam == 3 )
+    newmessage = "TEAM_IMC"
+    if( playerteam >= 4 )
+    newmessage = "TEAM_BOTH"
+    if( newmessage != playername )
+    newmessage = "(Team [" + newmessage + "])"
+    else
+    newmessage = "(Team)"
+    newmessage = playername + newmessage
+    }
     newmessage = newmessage + ": " + msg
     SendMessageToDiscord( newmessage, false )
     newmessage = "**" + playername + "**"
@@ -168,7 +154,7 @@ NSHttpRequest( request )
 void function MapChange()
 {
 string message = "Map Changed To [" + GetMapName() + "]"
-if( SUPPORTED_MAP_NAMES.contains( GetMapName() ) )
+if( GetMapName() in MAP_NAME_TABLE )
 message = "Map Changed To " + MAP_NAME_TABLE[GetMapName()] + " [" + GetMapName() + "]"
 SendMessageToDiscord( message, false )
 message = "```" + message + "```"
