@@ -68,16 +68,26 @@ ClServer_MessageStruct function LogMessage(ClServer_MessageStruct message)
     newmessage = "TEAM_IMC"
     if( playerteam >= 4 )
     newmessage = "TEAM_BOTH"
-    if( newmessage != playername )
     newmessage = "[TEAM (" + newmessage + ")]" + playername
-    else
-    newmessage = "[TEAM]"
     }
-    if( !message.isTeam )
-    newmessage = playername
     newmessage = newmessage + ": " + msg
     SendMessageToDiscord( newmessage, false )
+    if( !message.isTeam )
     newmessage = "**" + playername + "**"
+    else
+    {
+    if( playerteam <= 0 ) // Because A Table Doesn't Work We Are Gonna Try This
+    newmessage = "TEAM_SPECTATOR"
+    if( playerteam == 1 )
+    newmessage = "TEAM_UNASSIGNED"
+    if( playerteam == 2 )
+    newmessage = "TEAM_MILITIA"
+    if( playerteam == 3 )
+    newmessage = "TEAM_IMC"
+    if( playerteam >= 4 )
+    newmessage = "TEAM_BOTH"
+    newmessage = "**[TEAM (" + newmessage + ")]" + playername + "**"
+    }
     newmessage = newmessage + ": " + msg
     SendMessageToDiscord( newmessage, true, false )
     return message
