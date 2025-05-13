@@ -69,11 +69,12 @@ ClServer_MessageStruct function LogMessage(ClServer_MessageStruct message)
     if( playerteam >= 4 )
     newmessage = "TEAM_BOTH"
     if( newmessage != playername )
-    newmessage = "(Team [" + newmessage + "])"
+    newmessage = "[TEAM (" + newmessage + ")]" + playername
     else
-    newmessage = "(Team)"
-    newmessage = playername + newmessage
+    newmessage = "[TEAM]"
     }
+    if( !message.isTeam )
+    newmessage = playername + newmessage
     newmessage = newmessage + ": " + msg
     SendMessageToDiscord( newmessage, false )
     newmessage = "**" + playername + "**"
