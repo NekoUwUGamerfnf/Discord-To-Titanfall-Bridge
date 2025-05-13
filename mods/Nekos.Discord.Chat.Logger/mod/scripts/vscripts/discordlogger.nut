@@ -74,7 +74,7 @@ ClServer_MessageStruct function LogMessage(ClServer_MessageStruct message)
     newmessage = "[TEAM]"
     }
     if( !message.isTeam )
-    newmessage = playername + newmessage
+    newmessage = playername
     newmessage = newmessage + ": " + msg
     SendMessageToDiscord( newmessage, false )
     newmessage = "**" + playername + "**"
