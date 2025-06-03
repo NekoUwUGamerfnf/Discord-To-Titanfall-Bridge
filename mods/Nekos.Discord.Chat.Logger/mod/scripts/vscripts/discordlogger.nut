@@ -130,6 +130,7 @@ foreach( string message in messages )
 WaitFrame()
 SendMessageToDiscord( message, true, false )
 }
+WaitFrame()
 MapChange()
 }
 
@@ -144,7 +145,7 @@ if ( printmessage == true )
 print( "[DiscordLogger] Sending [" + message + "] To Discord" )
 if ( sendmessage == false )
 return // Anything Past This Is Sending The Message To Discord
- if ( GetGameState() == eGameState.Postmatch )
+ if ( GetGameState() == eGameState.Postmatch && GetConVarString( "discordlogger_localurl" ) == "" )
  {
  string messagetolog = GetConVarString( "discordlogger_last_log_of_chat" ) + "\"" + message
  SetConVarString( "discordlogger_last_log_of_chat", messagetolog )
@@ -170,7 +171,7 @@ request.headers = {
 }
 if ( GetConVarString( "discordlogger_localurl" ) == "" )
 wait RandomFloatRange( 0.15, 0.20 )
- if ( GetConVarString( "discordlogger_localurl" ) == "" && GetGameState() == eGameState.Postmatch )
+ if ( GetGameState() == eGameState.Postmatch && GetConVarString( "discordlogger_localurl" ) == "" )
  {
  string messagetolog = GetConVarString( "discordlogger_last_log_of_chat" ) + "\"" + message
  SetConVarString( "discordlogger_last_log_of_chat", messagetolog )
