@@ -8,7 +8,6 @@ return
 AddCallback_OnReceivedSayTextMessage( LogMessage )
 AddCallback_OnClientConnected( LogJoin )
 AddCallback_OnClientDisconnected( LogDisconnect )
-MapChange()
 thread LastLoggedMessage()
 #endif
 }
@@ -54,37 +53,37 @@ ClServer_MessageStruct function LogMessage(ClServer_MessageStruct message)
     string newmessage = ""
     string playername = message.player.GetPlayerName()
     int playerteam = message.player.GetTeam()
-    if( !message.isTeam )
+    if ( !message.isTeam )
     newmessage = playername
     else
     {
-    if( playerteam <= 0 ) // Because A Table Doesn't Work We Are Gonna Try This
+    if ( playerteam <= 0 ) // Because A Table Doesn't Work We Are Gonna Try This
     newmessage = "Spec"
-    if( playerteam == 1 )
+    if ( playerteam == 1 )
     newmessage = "None"
-    if( playerteam == 2 )
+    if ( playerteam == 2 )
     newmessage = "IMC"
-    if( playerteam == 3 )
+    if ( playerteam == 3 )
     newmessage = "Militia"
-    if( playerteam >= 4 )
+    if ( playerteam >= 4 )
     newmessage = "Both"
     newmessage = "[TEAM (" + newmessage + ")]" + playername
     }
     newmessage = newmessage + ": " + msg
     SendMessageToDiscord( newmessage, false )
-    if( !message.isTeam )
+    if ( !message.isTeam )
     newmessage = "**" + playername + "**"
     else
     {
-    if( playerteam <= 0 )
+    if ( playerteam <= 0 )
     newmessage = "Spec"
-    if( playerteam == 1 )
+    if ( playerteam == 1 )
     newmessage = "None"
-    if( playerteam == 2 )
+    if ( playerteam == 2 )
     newmessage = "IMC"
-    if( playerteam == 3 )
+    if ( playerteam == 3 )
     newmessage = "Militia"
-    if( playerteam >= 4 )
+    if ( playerteam >= 4 )
     newmessage = "Both"
     newmessage = "**[TEAM (" + newmessage + ")]" + playername + "**"
     }
@@ -96,9 +95,9 @@ ClServer_MessageStruct function LogMessage(ClServer_MessageStruct message)
 void function LogJoin( entity player )
 {
 string playername = "Someone"
-if( IsValid( player ) )
+if ( IsValid( player ) )
 {
-if( player.IsPlayer() )
+if ( player.IsPlayer() )
 playername = player.GetPlayerName()
 }
 string message = playername + " Has Joined The Server [Players On The Server " + GetPlayerArray().len() + "]"
@@ -110,9 +109,9 @@ SendMessageToDiscord( message, true, false )
 void function LogDisconnect( entity player )
 {
 string playername = "Someone"
-if( IsValid( player ) )
+if ( IsValid( player ) )
 {
-if( player.IsPlayer() )
+if ( player.IsPlayer() )
 playername = player.GetPlayerName()
 }
 int playerarray = GetPlayerArray().len() - 1
@@ -131,6 +130,7 @@ foreach( string message in messages )
 WaitFrame()
 SendMessageToDiscord( message, true, false )
 }
+MapChange()
 }
 
 void function SendMessageToDiscord( string message, bool sendmessage = true, bool printmessage = true )
@@ -140,11 +140,11 @@ thread SendMessageToDiscord_thread( message, sendmessage, printmessage )
 
 void function SendMessageToDiscord_thread( string message, bool sendmessage = true, bool printmessage = true )
 {
-if( printmessage == true )
+if ( printmessage == true )
 print( "[DiscordLogger] Sending [" + message + "] To Discord" )
-if( sendmessage == false )
+if ( sendmessage == false )
 return // Anything Past This Is Sending The Message To Discord
- if( GetGameState() == eGameState.Postmatch )
+ if ( GetGameState() == eGameState.Postmatch )
  {
  string messagetolog = GetConVarString( "discordlogger_last_log_of_chat" ) + "\"" + message
  SetConVarString( "discordlogger_last_log_of_chat", messagetolog )
@@ -153,21 +153,36 @@ return // Anything Past This Is Sending The Message To Discord
 HttpRequest request
 request.method = HttpRequestMethod.POST
 request.url = GetConVarString( "discordlogger_webhook" )
+if ( GetConVarString( "discordlogger_localurl" ) != "" )
+request.url = GetConVarString( "discordlogger_localurl" )
 request.body = "{ " +
+        "\"content\": \"" + message + "\", " +
+        "\"allowed_mentions\": { \"parse\": [] }" +
+    " }"
+if ( GetConVarString( "discordlogger_localurl" ) != "" )
+request.body = "{ " +
+        "\"forward_request\": \"" + GetConVarString( "discordlogger_webhook" ) + "\", " +
         "\"content\": \"" + message + "\", " +
         "\"allowed_mentions\": { \"parse\": [] }" +
     " }"
 request.headers = {
     ["Content-Type"] = ["application/json"]
 }
-wait 0.15
+if ( GetConVarString( "discordlogger_localurl" ) == "" )
+wait RandomFloatRange( 0.15, 0.20 )
+ if ( GetConVarString( "discordlogger_localurl" ) == "" && GetGameState() == eGameState.Postmatch )
+ {
+ string messagetolog = GetConVarString( "discordlogger_last_log_of_chat" ) + "\"" + message
+ SetConVarString( "discordlogger_last_log_of_chat", messagetolog )
+ return
+ }
 NSHttpRequest( request )
 }
 
 void function MapChange()
 {
 string message = "Map Changed To [" + GetMapName() + "]"
-if( GetMapName() in MAP_NAME_TABLE )
+if ( GetMapName() in MAP_NAME_TABLE )
 message = "Map Changed To " + MAP_NAME_TABLE[GetMapName()] + " [" + GetMapName() + "]"
 SendMessageToDiscord( message, false )
 message = "```" + message + "```"

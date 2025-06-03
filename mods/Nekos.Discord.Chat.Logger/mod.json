@@ -10,6 +10,10 @@
 			"DefaultValue": ""
 		},
 		{
+			"Name": "discordlogger_localurl",
+			"DefaultValue": "" // Only Change This If You Are Running Discord Logger Request Forwarder
+		},
+		{
 			"Name": "discordlogger_last_log_of_chat",
 			"DefaultValue": "```Server Has Crashed Or Restarted```" // This Can Be Used As A Logger If The Server Has Crashed/Restarted AndOr Last Log Of Chat Before Map Change
 		}
