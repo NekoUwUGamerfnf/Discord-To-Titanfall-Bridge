@@ -43,9 +43,9 @@ table<string, string> MAP_NAME_TABLE = {
 ClServer_MessageStruct function LogMessage(ClServer_MessageStruct message) 
 {
     string msg = message.message
-    if (msg.len() == 0)
+    if ( msg.len() == 0 )
     return message
-    if (format("%c", msg[0]) == "!" )
+    if ( message.shouldBlock )
     return message
     msg = StringReplace( msg, "\"", "''", true )
     msg = StringReplace( msg, "\\", "\\\\", true )
@@ -95,11 +95,8 @@ ClServer_MessageStruct function LogMessage(ClServer_MessageStruct message)
 void function LogJoin( entity player )
 {
 string playername = "Someone"
-if ( IsValid( player ) )
-{
-if ( player.IsPlayer() )
+if ( IsValid( player ) && player.IsPlayer() )
 playername = player.GetPlayerName()
-}
 string message = playername + " Has Joined The Server [Players On The Server " + GetPlayerArray().len() + "]"
 SendMessageToDiscord( message, false )
 message = "```" + message + "```"
@@ -109,11 +106,8 @@ SendMessageToDiscord( message, true, false )
 void function LogDisconnect( entity player )
 {
 string playername = "Someone"
-if ( IsValid( player ) )
-{
-if ( player.IsPlayer() )
+if ( IsValid( player ) && player.IsPlayer() )
 playername = player.GetPlayerName()
-}
 int playerarray = GetPlayerArray().len() - 1
 string message = playername + " Has Left The Server [Players On The Server " + playerarray + "]"
 SendMessageToDiscord( message, false )
@@ -127,8 +121,8 @@ array<string> messages = split( GetConVarString( "discordlogger_last_log_of_chat
 SetConVarString( "discordlogger_last_log_of_chat", "" )
 foreach( string message in messages )
 {
-WaitFrame()
-SendMessageToDiscord( message, true, false )
+ WaitFrame()
+ SendMessageToDiscord( message, true, false )
 }
 WaitFrame()
 MapChange()
@@ -141,9 +135,9 @@ thread SendMessageToDiscord_thread( message, sendmessage, printmessage )
 
 void function SendMessageToDiscord_thread( string message, bool sendmessage = true, bool printmessage = true )
 {
-if ( printmessage == true )
+if ( printmessage )
 print( "[DiscordLogger] Sending [" + message + "] To Discord" )
-if ( sendmessage == false )
+if ( !sendmessage )
 return // Anything Past This Is Sending The Message To Discord
  if ( GetGameState() == eGameState.Postmatch && GetConVarString( "discordlogger_localurl" ) == "" )
  {
