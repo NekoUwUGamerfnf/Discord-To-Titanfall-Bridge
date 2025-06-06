@@ -45,7 +45,7 @@ ClServer_MessageStruct function LogMessage(ClServer_MessageStruct message)
     string msg = message.message
     if ( msg.len() == 0 )
     return message
-    if ( message.shouldBlock )
+    if ( format("%c", msg[0]) == "!" && message.shouldBlock )
     return message
     msg = StringReplace( msg, "\"", "''", true )
     msg = StringReplace( msg, "\\", "\\\\", true )
