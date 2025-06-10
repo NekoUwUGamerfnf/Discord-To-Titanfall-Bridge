@@ -2,14 +2,10 @@ global function discordlogger_init
 
 void function discordlogger_init() 
 {
-#if SERVER
-if ( IsSingleplayer() )
-return
 AddCallback_OnReceivedSayTextMessage( LogMessage )
 AddCallback_OnClientConnected( LogJoin )
 AddCallback_OnClientDisconnected( LogDisconnect )
 thread LastLoggedMessage()
-#endif
 }
 
 table<string, string> MAP_NAME_TABLE = {
@@ -39,7 +35,6 @@ table<string, string> MAP_NAME_TABLE = {
     mp_wargames = "Wargames",
 }
 
-#if SERVER
 ClServer_MessageStruct function LogMessage(ClServer_MessageStruct message) 
 {
     string msg = message.message
@@ -117,6 +112,7 @@ SendMessageToDiscord( message, true, false )
 
 void function LastLoggedMessage()
 {
+WaitFrame()
 array<string> messages = split( GetConVarString( "discordlogger_last_log_of_chat" ), "\"" )
 SetConVarString( "discordlogger_last_log_of_chat", "" )
 foreach( string message in messages )
@@ -124,7 +120,7 @@ foreach( string message in messages )
  WaitFrame()
  SendMessageToDiscord( message, true, false )
 }
-WaitFrame()
+wait 0.1
 MapChange()
 }
 
@@ -183,4 +179,3 @@ SendMessageToDiscord( message, false )
 message = "```" + message + "```"
 SendMessageToDiscord( message, true, false )
 }
-#endif
