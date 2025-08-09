@@ -8,6 +8,10 @@
 		{
 			"Name": "discordlogger_webhook",
 			"DefaultValue": ""
+		},
+		{
+			"Name": "discordlogger_shouldsendmessageifservercrashandorrestart",
+			"DefaultValue": "1"
 		}
 	],
 	"Scripts": [
