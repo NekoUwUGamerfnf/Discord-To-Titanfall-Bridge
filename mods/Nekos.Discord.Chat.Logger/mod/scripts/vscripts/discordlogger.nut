@@ -2,6 +2,11 @@ global function discordlogger_init
 
 void function discordlogger_init()
 {
+    if ( GetConVarInt( "discordlogger_shouldsendmessageifservercrashandorrestart" ) == 1 )
+    {
+        SendMessageToDiscord( "```Server Has Crashed And Or Restarted```" )
+        SetConVarInt( "discordlogger_shouldsendmessageifservercrashandorrestart", 0 )
+    }
     AddCallback_OnReceivedSayTextMessage( LogMessage )
     AddCallback_OnClientConnected( LogJoin )
     AddCallback_OnClientDisconnected( LogDisconnect )
@@ -95,7 +100,7 @@ ClServer_MessageStruct function LogMessage( ClServer_MessageStruct message )
             newmessage = "Militia"
         if ( playerteam >= 4 )
             newmessage = "Both"
-        newmessage = "**[TEAM (" + newmessage + ")]" + playername + ""
+        newmessage = "**[TEAM (" + newmessage + ")]" + playername
     }
     newmessage = newmessage + ":** " + msg
     SendMessageToDiscord( newmessage, true, false )
@@ -139,15 +144,12 @@ void function LogDisconnect( entity player )
 
 void function SendMessageToDiscord( string message, bool sendmessage = true, bool printmessage = true )
 {
-    thread SendMessageToDiscord_thread( message, sendmessage, printmessage )
-}
-
-void function SendMessageToDiscord_thread( string message, bool sendmessage = true, bool printmessage = true )
-{
     if ( printmessage )
         print( "[DiscordLogger] Sending [" + message + "] To Discord" )
-    if ( !sendmessage )
+
+    if ( !sendmessage || GetConVarString( "discordlogger_webhook" ) == "" )
         return
+
     HttpRequest request
     request.method = HttpRequestMethod.POST
     request.url = GetConVarString( "discordlogger_webhook" )
@@ -178,6 +180,6 @@ void function MessageQueue()
     file.queue += 1
     while ( file.realqueue < queue )
         WaitFrame()
-    wait 0.3
+    wait 0.15
     file.realqueue += 1
 }
