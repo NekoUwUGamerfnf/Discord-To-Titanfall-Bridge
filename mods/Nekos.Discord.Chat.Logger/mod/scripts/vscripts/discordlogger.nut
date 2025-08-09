@@ -1,11 +1,11 @@
 global function discordlogger_init
 
-void function discordlogger_init() 
+void function discordlogger_init()
 {
-AddCallback_OnReceivedSayTextMessage( LogMessage )
-AddCallback_OnClientConnected( LogJoin )
-AddCallback_OnClientDisconnected( LogDisconnect )
-thread LastLoggedMessage()
+    AddCallback_OnReceivedSayTextMessage( LogMessage )
+    AddCallback_OnClientConnected( LogJoin )
+    AddCallback_OnClientDisconnected( LogDisconnect )
+    thread MapChange()
 }
 
 table<string, string> MAP_NAME_TABLE = {
@@ -35,147 +35,149 @@ table<string, string> MAP_NAME_TABLE = {
     mp_wargames = "Wargames",
 }
 
-ClServer_MessageStruct function LogMessage(ClServer_MessageStruct message) 
+struct
 {
+    int queue = 0
+    int realqueue = 0
+} file
+
+ClServer_MessageStruct function LogMessage( ClServer_MessageStruct message )
+{
+    if ( !IsNewThread() )
+    {
+        thread LogMessage( message )
+        return message
+    }
+    MessageQueue()
     string msg = message.message
     if ( msg.len() == 0 )
-    return message
-    if ( format("%c", msg[0]) == "!" && message.shouldBlock )
-    return message
+        return message
+
+    if ( format( "%c", msg[0] ) == "!" && message.shouldBlock )
+        return message
+
     msg = StringReplace( msg, "\"", "''", true )
     msg = StringReplace( msg, "\\", "\\\\", true )
     msg = StringReplace( msg, "\\", "\\\\", true )
+    msg = StringReplace( msg, "", "ESC", true )
     string newmessage = ""
     string playername = message.player.GetPlayerName()
     int playerteam = message.player.GetTeam()
     if ( !message.isTeam )
-    newmessage = playername
+        newmessage = playername
     else
     {
-    if ( playerteam <= 0 ) // Because A Table Doesn't Work We Are Gonna Try This
-    newmessage = "Spec"
-    if ( playerteam == 1 )
-    newmessage = "None"
-    if ( playerteam == 2 )
-    newmessage = "IMC"
-    if ( playerteam == 3 )
-    newmessage = "Militia"
-    if ( playerteam >= 4 )
-    newmessage = "Both"
-    newmessage = "[TEAM (" + newmessage + ")]" + playername
+        if ( playerteam <= 0 )
+            newmessage = "Spec"
+        if ( playerteam == 1 )
+            newmessage = "None"
+        if ( playerteam == 2 )
+            newmessage = "IMC"
+        if ( playerteam == 3 )
+            newmessage = "Militia"
+        if ( playerteam >= 4 )
+            newmessage = "Both"
+        newmessage = "[TEAM (" + newmessage + ")]" + playername
     }
-    newmessage = newmessage + ": " + msg
+    newmessage = newmessage + "**:** " + msg
     SendMessageToDiscord( newmessage, false )
     if ( !message.isTeam )
-    newmessage = "**" + playername + "**"
+        newmessage = "**" + playername
     else
     {
-    if ( playerteam <= 0 )
-    newmessage = "Spec"
-    if ( playerteam == 1 )
-    newmessage = "None"
-    if ( playerteam == 2 )
-    newmessage = "IMC"
-    if ( playerteam == 3 )
-    newmessage = "Militia"
-    if ( playerteam >= 4 )
-    newmessage = "Both"
-    newmessage = "**[TEAM (" + newmessage + ")]" + playername + "**"
+        if ( playerteam <= 0 )
+            newmessage = "Spec"
+        if ( playerteam == 1 )
+            newmessage = "None"
+        if ( playerteam == 2 )
+            newmessage = "IMC"
+        if ( playerteam == 3 )
+            newmessage = "Militia"
+        if ( playerteam >= 4 )
+            newmessage = "Both"
+        newmessage = "**[TEAM (" + newmessage + ")]" + playername + ""
     }
-    newmessage = newmessage + ": " + msg
+    newmessage = newmessage + ":** " + msg
     SendMessageToDiscord( newmessage, true, false )
     return message
 }
 
 void function LogJoin( entity player )
 {
-string playername = "Someone"
-if ( IsValid( player ) && player.IsPlayer() )
-playername = player.GetPlayerName()
-string message = playername + " Has Joined The Server [Players On The Server " + GetPlayerArray().len() + "]"
-SendMessageToDiscord( message, false )
-message = "```" + message + "```"
-SendMessageToDiscord( message, true, false )
+    if ( !IsNewThread() )
+    {
+        thread LogJoin( player )
+        return
+    }
+    string playername = "Someone"
+    if ( IsValid( player ) && player.IsPlayer() )
+        playername = player.GetPlayerName()
+    string message = playername + " Has Joined The Server [Players On The Server " + GetPlayerArray().len() + "]"
+    MessageQueue()
+    SendMessageToDiscord( message, false )
+    message = "```" + message + "```"
+    SendMessageToDiscord( message, true, false )
 }
 
 void function LogDisconnect( entity player )
 {
-string playername = "Someone"
-if ( IsValid( player ) && player.IsPlayer() )
-playername = player.GetPlayerName()
-int playerarray = GetPlayerArray().len() - 1
-string message = playername + " Has Left The Server [Players On The Server " + playerarray + "]"
-SendMessageToDiscord( message, false )
-message = "```" + message + "```"
-SendMessageToDiscord( message, true, false )
-}
-
-void function LastLoggedMessage()
-{
-WaitFrame()
-array<string> messages = split( GetConVarString( "discordlogger_last_log_of_chat" ), "\"" )
-SetConVarString( "discordlogger_last_log_of_chat", "" )
-foreach( string message in messages )
-{
- WaitFrame()
- SendMessageToDiscord( message, true, false )
-}
-wait 0.1
-MapChange()
+    if ( !IsNewThread() )
+    {
+        thread LogDisconnect( player )
+        return
+    }
+    string playername = "Someone"
+    if ( IsValid( player ) && player.IsPlayer() )
+        playername = player.GetPlayerName()
+    int playerarray = GetPlayerArray().len() - 1
+    string message = playername + " Has Left The Server [Players On The Server " + playerarray + "]"
+    MessageQueue()
+    SendMessageToDiscord( message, false )
+    message = "```" + message + "```"
+    SendMessageToDiscord( message, true, false )
 }
 
 void function SendMessageToDiscord( string message, bool sendmessage = true, bool printmessage = true )
 {
-thread SendMessageToDiscord_thread( message, sendmessage, printmessage )
+    thread SendMessageToDiscord_thread( message, sendmessage, printmessage )
 }
 
 void function SendMessageToDiscord_thread( string message, bool sendmessage = true, bool printmessage = true )
 {
-if ( printmessage )
-print( "[DiscordLogger] Sending [" + message + "] To Discord" )
-if ( !sendmessage )
-return // Anything Past This Is Sending The Message To Discord
- if ( GetGameState() == eGameState.Postmatch && GetConVarString( "discordlogger_localurl" ) == "" )
- {
- string messagetolog = GetConVarString( "discordlogger_last_log_of_chat" ) + "\"" + message
- SetConVarString( "discordlogger_last_log_of_chat", messagetolog )
- return
- }
-HttpRequest request
-request.method = HttpRequestMethod.POST
-request.url = GetConVarString( "discordlogger_webhook" )
-if ( GetConVarString( "discordlogger_localurl" ) != "" )
-request.url = GetConVarString( "discordlogger_localurl" )
-request.body = "{ " +
+    if ( printmessage )
+        print( "[DiscordLogger] Sending [" + message + "] To Discord" )
+    if ( !sendmessage )
+        return
+    HttpRequest request
+    request.method = HttpRequestMethod.POST
+    request.url = GetConVarString( "discordlogger_webhook" )
+    request.body = "{ " +
         "\"content\": \"" + message + "\", " +
         "\"allowed_mentions\": { \"parse\": [] }" +
-    " }"
-if ( GetConVarString( "discordlogger_localurl" ) != "" )
-request.body = "{ " +
-        "\"forward_request\": \"" + GetConVarString( "discordlogger_webhook" ) + "\", " +
-        "\"content\": \"" + message + "\", " +
-        "\"allowed_mentions\": { \"parse\": [] }" +
-    " }"
-request.headers = {
-    ["Content-Type"] = ["application/json"]
-}
-if ( GetConVarString( "discordlogger_localurl" ) == "" )
-wait RandomFloatRange( 0.15, 0.20 )
- if ( GetGameState() == eGameState.Postmatch && GetConVarString( "discordlogger_localurl" ) == "" )
- {
- string messagetolog = GetConVarString( "discordlogger_last_log_of_chat" ) + "\"" + message
- SetConVarString( "discordlogger_last_log_of_chat", messagetolog )
- return
- }
-NSHttpRequest( request )
+        " }"
+    request.headers = {
+        ["Content-Type"] = ["application/json"]
+    }
+    NSHttpRequest( request )
 }
 
 void function MapChange()
 {
-string message = "Map Changed To [" + GetMapName() + "]"
-if ( GetMapName() in MAP_NAME_TABLE )
-message = "Map Changed To " + MAP_NAME_TABLE[GetMapName()] + " [" + GetMapName() + "]"
-SendMessageToDiscord( message, false )
-message = "```" + message + "```"
-SendMessageToDiscord( message, true, false )
+    MessageQueue()
+    string message = "Map Changed To [" + GetMapName() + "]"
+    if ( GetMapName() in MAP_NAME_TABLE )
+        message = "Map Changed To " + MAP_NAME_TABLE[ GetMapName() ] + " [" + GetMapName() + "]"
+    SendMessageToDiscord( message, false )
+    message = "```" + message + "```"
+    SendMessageToDiscord( message, true, false )
+}
+
+void function MessageQueue()
+{
+    int queue = file.queue
+    file.queue += 1
+    while ( file.realqueue < queue )
+        WaitFrame()
+    wait 0.3
+    file.realqueue += 1
 }
