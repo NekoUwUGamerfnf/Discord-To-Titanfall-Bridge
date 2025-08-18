@@ -44,6 +44,7 @@ struct
 {
     int queue = 0
     int realqueue = 0
+    float queuetime = 0
 } file
 
 ClServer_MessageStruct function LogMessage( ClServer_MessageStruct message )
@@ -178,8 +179,8 @@ void function MessageQueue()
 {
     int queue = file.queue
     file.queue += 1
-    while ( file.realqueue < queue )
+    while ( file.realqueue < queue || file.queuetime > Time() )
         WaitFrame()
-    wait 0.15
+    file.queuetime = Time() + 0.20
     file.realqueue += 1
 }
