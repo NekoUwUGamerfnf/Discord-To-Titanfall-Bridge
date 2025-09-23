@@ -133,6 +133,9 @@ void function LogDisconnect( entity player )
 
 void function SendMessageToDiscord( string message, bool sendmessage = true, bool printmessage = true )
 {
+    if ( GetConVarString( "discordlogger_webhook" ) == "" )
+        return
+
     if ( printmessage )
         print( "[DiscordLogger] Sending [" + message + "] To Discord" )
 
@@ -186,7 +189,7 @@ void function DiscordMessagePoller()
             MessageQueue()
             PollDiscordMessages()
         }
-        wait 1.0
+        wait 1.5
     }
 }
 
@@ -307,6 +310,7 @@ void function ThreadDiscordToTitanfallBridge( HttpRequestResponse response )
                 while ( meower.find( "\"" ) )
                     meower = meower.slice( 0, -1 )
                 thread EndThreadDiscordToTitanfallBridge( meow, meower )
+                wait 0.25
             }
         }
         last_discord_timestamp = StringReplaceTime( newresponse[2] )
