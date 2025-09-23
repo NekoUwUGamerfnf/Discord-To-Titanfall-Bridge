@@ -329,7 +329,7 @@ int function StringReplaceTime( string time )
     
     string first14 = ""
     if ( returntime.len() >= 14 )
-        first14 = returntime.slice( 6, 15 ) // YYYYMMDDHHMMSS
+        first14 = returntime.slice( 6, 15 )
     else
         first14 = returntime
     
