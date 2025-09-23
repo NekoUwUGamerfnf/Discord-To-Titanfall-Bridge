@@ -5,6 +5,7 @@
 	"LoadPriority": 20,
 	"RequiredOnClient": false,
 	"ConVars": [
+		// Titanfall To Discord
 		{
 			"Name": "discordlogger_webhook",
 			"DefaultValue": ""
@@ -12,6 +13,19 @@
 		{
 			"Name": "discordlogger_shouldsendmessageifservercrashandorrestart",
 			"DefaultValue": "1"
+		},
+		// Discord To Titanfall
+		{
+			"Name": "discordlogger_bottoken",
+			"DefaultValue": ""
+		},
+		{
+			"Name": "discordlogger_channelid",
+			"DefaultValue": ""
+		},
+		{
+			"Name": "discordlogger_serverid",
+			"DefaultValue": ""
 		}
 	],
 	"Scripts": [
