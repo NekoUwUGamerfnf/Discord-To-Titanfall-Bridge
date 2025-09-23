@@ -189,7 +189,7 @@ void function DiscordMessagePoller()
             MessageQueue()
             PollDiscordMessages()
         }
-        wait 1.5
+        wait 1.25
     }
 }
 
