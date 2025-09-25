@@ -424,5 +424,17 @@ void function EndThreadDiscordToTitanfallBridge( string meow, string meower, str
         ["Authorization"] = [ "Bot " + bottoken ],
         ["User-Agent"] = [ "NorthstarDiscordLogger/1.0" ]
     }
-    NSHttpRequest( request )
+    void functionref( HttpRequestResponse ) onSuccess = void function ( HttpRequestResponse response )
+    {
+        if ( response.statusCode != 204 )
+        {
+            print( "[Discord] Poll failed with status: " + response.statusCode.tostring() )
+            print( "[Discord] Response Body: " + response.body )
+        }
+    }
+    void functionref( HttpRequestFailure ) onFailure = void function ( HttpRequestFailure failure )
+    {
+        print( "[Discord] Poll failed: " + failure.errorMessage )
+    }
+    NSHttpRequest( request, onSuccess, onFailure )
 }
