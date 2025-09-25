@@ -252,7 +252,7 @@ void function ThreadDiscordToTitanfallBridge( HttpRequestResponse response )
         responsebody = StringReplace( responsebody, "\"author\"", "author\"", true )
         responsebody = StringReplace( responsebody, "\"pinned\"", "pinned\"", true )
         responsebody = StringReplace( responsebody, "\"mentions\"", "mentions\"", true )
-        responsebody = StringReplace( responsebody, "\"tts\"", "tts\"", true )
+        responsebody = StringReplace( responsebody, "\"channel_id\"", "channel_id\"", true )
         responsebody = StringReplace( responsebody, "},{", "[{", true )
         responsebody = StringReplace( responsebody, "\"timestamp\":\"", "\"timestamp\":", true )
         responsebody = StringReplace( responsebody, "\",\"edited_timestamp\"", ",\"edited_timestamp\"", true )
@@ -261,7 +261,7 @@ void function ThreadDiscordToTitanfallBridge( HttpRequestResponse response )
             return
         for ( int i = 0; i < newresponse.len(); i++ )
         {
-            if ( i > 6 && StringReplaceTime( newresponse[9] ) >= last_discord_timestamp )
+            if ( (i == 7 || i == 14 || i == 21 || i == 28) && StringReplaceTime( newresponse[ i + 2 ] ) <= last_discord_timestamp )
                 break
             string meow = newresponse[i]
             // 0 for content
@@ -274,27 +274,27 @@ void function ThreadDiscordToTitanfallBridge( HttpRequestResponse response )
             // 7 for next row of messages
             if ( i < 7 )
             {
-                if ( newresponse[ 4 ].find( "\"bot\"" ) )
+                if ( newresponse[ 5 ].find( "\"bot\"" ) )
                     continue
             }
             else if ( i >= 7 && i < 14 )
             {
-                if ( newresponse[ 11 ].find( "\"bot\"" ) )
+                if ( newresponse[ 12 ].find( "\"bot\"" ) )
                     continue
             }
             else if ( i >= 14 && i < 21 )
             {
-                if ( newresponse[ 18 ].find( "\"bot\"" ) )
+                if ( newresponse[ 19 ].find( "\"bot\"" ) )
                     continue
             }
             else if ( i >= 21 && i < 28 )
             {
-                if ( newresponse[ 25 ].find( "\"bot\"" ) )
+                if ( newresponse[ 26 ].find( "\"bot\"" ) )
                     continue
             }
             else if ( i >= 28 && i < 35 )
             {
-                if ( newresponse[ 32 ].find( "\"bot\"" ) )
+                if ( newresponse[ 33 ].find( "\"bot\"" ) )
                     continue
             }
             if ( i == 0 || i == 7 || i == 14 || i == 21 || i == 28 )
@@ -305,11 +305,16 @@ void function ThreadDiscordToTitanfallBridge( HttpRequestResponse response )
                 meow = meow.slice( 2 )
                 if ( meow.len() > 255 || meow.len() <= 0 )
                     return
-                string meower = newresponse[4]
+                string meower = newresponse[ i + 5 ]
                 meower = meower.slice( 15 )
                 while ( meower.find( "\"" ) )
                     meower = meower.slice( 0, -1 )
-                thread EndThreadDiscordToTitanfallBridge( meow, meower )
+                string meowest = newresponse[ i + 3 ]
+                meowest = meowest.slice( 0, -2 )
+                while ( meowest.find( "id" ) )
+                    meowest = meowest.slice( 1 )
+                meowest = meowest.slice( 5 )
+                thread EndThreadDiscordToTitanfallBridge( meow, meower, meowest )
                 wait 0.25
             }
         }
@@ -331,13 +336,9 @@ int function StringReplaceTime( string time )
     returntime = StringReplace( returntime, "+", "", true )
     returntime = StringReplace( returntime, "T", "", true )
     
-    string first14 = ""
     if ( returntime.len() >= 14 )
-        first14 = returntime.slice( 6, 15 )
-    else
-        first14 = returntime
-    
-    return first14.tointeger()
+        returntime = returntime.slice( 10, -5 )
+    return returntime.tointeger()
 }
 
 void function GetUserNickname( string userid )
@@ -409,9 +410,20 @@ void function ActuallySendMessageToPlayers( entity player, string message )
     Chat_ServerPrivateMessage( player, message, false, false )
 }
 
-void function EndThreadDiscordToTitanfallBridge( string meow, string meower )
+void function EndThreadDiscordToTitanfallBridge( string meow, string meower, string meowest )
 {
     GetUserNickname( meower )
     meower = GetUserTrueNickname( meower )
     SendMessageToPlayers( "[38;2;88;101;242m" + meower + ": \x1b[0m" + meow )
+    string bottoken = GetConVarString( "discordlogger_bottoken" )
+    string channelid = GetConVarString( "discordlogger_channelid" )
+    HttpRequest request
+    request.method = HttpRequestMethod.PUT
+    string url = "https://discord.com/api/v10/channels/" + channelid + "/messages/" + meowest + "/reactions/%F0%9F%9F%A2/@me"
+    request.url = url
+    request.headers = {
+        ["Authorization"] = [ "Bot " + bottoken ],
+        ["User-Agent"] = [ "NorthstarDiscordLogger/1.0" ]
+    }
+    NSHttpRequest( request )
 }
