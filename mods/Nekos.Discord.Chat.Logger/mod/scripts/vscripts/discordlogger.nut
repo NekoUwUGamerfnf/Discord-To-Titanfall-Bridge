@@ -343,7 +343,6 @@ int function StringReplaceTime( string time )
 
 void function GetUserNickname( string userid )
 {
-    print( userid )
     string bottoken = GetConVarString( "discordlogger_bottoken" )
     string guildid = GetConVarString( "discordlogger_serverid" )
     HttpRequest request
