@@ -419,7 +419,7 @@ void function EndThreadDiscordToTitanfallBridge( string meow, string meower, str
     string channelid = GetConVarString( "discordlogger_channelid" )
     HttpRequest request
     request.method = HttpRequestMethod.PUT
-    string url = "https://discord.com/api/v10/channels/" + channelid + "/messages/" + meowest + "/reactions/%F0%9F%9F%A2/@me"
+    string url = "https://discord.com/api/v10/channels/" + channelid + "/messages/" + meowest + "/reactions/🟢/@me"
     request.url = url
     request.headers = {
         ["Authorization"] = [ "Bot " + bottoken ],
