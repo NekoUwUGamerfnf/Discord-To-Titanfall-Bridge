@@ -4,7 +4,7 @@ void function discordlogger_init()
 {
     if ( GetConVarInt( "discordlogger_shouldsendmessageifservercrashandorrestart" ) == 1 )
     {
-        SendMessageToDiscord( "```Server Has Crashed And Or Restarted```" )
+        thread SendServerCrashedAndOrRestartedMessage()
         SetConVarInt( "discordlogger_shouldsendmessageifservercrashandorrestart", 0 )
     }
     AddCallback_OnReceivedSayTextMessage( LogMessage )
@@ -175,7 +175,7 @@ void function MessageQueue()
     file.queue += 1
     while ( file.realqueue < queue || file.queuetime > Time() )
         WaitFrame()
-    file.queuetime = Time() + 0.30
+    file.queuetime = Time() + 0.25
     file.realqueue += 1
 }
 
@@ -437,4 +437,10 @@ void function EndThreadDiscordToTitanfallBridge( string meow, string meower, str
         print( "[Discord] Poll failed: " + failure.errorMessage )
     }
     NSHttpRequest( request, onSuccess, onFailure )
+}
+
+void function SendServerCrashedAndOrRestartedMessage()
+{
+    MessageQueue()
+    SendMessageToDiscord( "```Server Has Crashed And Or Restarted```" )
 }
