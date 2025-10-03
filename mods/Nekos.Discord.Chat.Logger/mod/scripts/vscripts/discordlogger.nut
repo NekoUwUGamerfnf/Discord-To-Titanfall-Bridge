@@ -153,7 +153,8 @@ void function SendMessageToDiscord( string message, bool sendmessage = true, boo
     request.url = GetConVarString( "discordlogger_webhook" )
     request.body = EncodeJSON( payload )
     request.headers = {
-        ["Content-Type"] = ["application/json"]
+        [ "Content-Type" ] = [ "application/json" ],
+        [ "User-Agent" ] = [ "DiscordToTitanfallBridge" ]
     }
     NSHttpRequest( request )
 }
@@ -204,20 +205,40 @@ void function PollDiscordMessages()
     string url = "https://discord.com/api/v10/channels/" + channelid + "/messages?limit=5"
     request.url = url
     request.headers = {
-        ["Authorization"] = [ "Bot " + bottoken ],
-        ["User-Agent"] = [ "NorthstarDiscordLogger/1.0" ]
+        [ "Authorization" ] = [ "Bot " + bottoken ],
+        [ "User-Agent" ] = [ "DiscordToTitanfallBridge" ]
     }
     
     void functionref( HttpRequestResponse ) onSuccess = void function ( HttpRequestResponse response )
     {
-        if ( file.firsttime )
+        if ( file.firsttime && response.statusCode == 200 )
         {
             string responsebody = response.body
+            responsebody = StringReplace( responsebody, "\"message_reference\"", "\"message_reference\"", true )
+            array<string> arrayresponse = split( responsebody, "" )
+            array<string> fixedresponse = []
+            for ( int i = 0; i < arrayresponse.len(); i++ )
+                if ( arrayresponse[i].find( "\"message_reference\"" ) == null )
+                    fixedresponse.append( arrayresponse[i] )
+            responsebody = ""
+            for ( int i = 0; i < fixedresponse.len(); i++ )
+                responsebody += fixedresponse[i]
+            responsebody = StringReplace( responsebody, "\"author\"", "author\"", true )
+            responsebody = StringReplace( responsebody, "\"pinned\"", "pinned\"", true )
             responsebody = StringReplace( responsebody, "\"mentions\"", "mentions\"", true )
+            responsebody = StringReplace( responsebody, "\"channel_id\"", "channel_id\"", true )
+            responsebody = StringReplace( responsebody, "},{", "[{", true )
             responsebody = StringReplace( responsebody, "\"timestamp\":\"", "\"timestamp\":", true )
             responsebody = StringReplace( responsebody, "\",\"edited_timestamp\"", ",\"edited_timestamp\"", true )
             array<string> newresponse = split( responsebody, "" )
-            if ( newresponse.len() >= 2 )
+            if ( newresponse.len() < 6 )
+                return
+            string meow = newresponse[0] 
+            meow = meow.slice( 0, -2 )
+            while ( meow.find( ":\"" ) )
+                meow = meow.slice( 1 )
+            meow = meow.slice( 2 )
+            if ( meow.len() <= 255 && meow.len() > 0 )
             {
                 last_discord_timestamp = StringReplaceTime( newresponse[2] )
                 file.firsttime = false
@@ -304,7 +325,17 @@ void function ThreadDiscordToTitanfallBridge( HttpRequestResponse response )
                     meow = meow.slice( 1 )
                 meow = meow.slice( 2 )
                 if ( meow.len() > 255 || meow.len() <= 0 )
-                    return
+                {
+                    string meowest = newresponse[ i + 3 ]
+                    meowest = meowest.slice( 0, -2 )
+                    while ( meowest.find( "id" ) )
+                        meowest = meowest.slice( 1 )
+                    meowest = meowest.slice( 5 )
+                    RedCircleDiscordToTitanfallBridge( meowest )
+                    continue
+                }
+                if ( i == 0 )
+                    last_discord_timestamp = StringReplaceTime( newresponse[2] )
                 string meower = newresponse[ i + 5 ]
                 meower = meower.slice( 15 )
                 while ( meower.find( "\"" ) )
@@ -318,7 +349,6 @@ void function ThreadDiscordToTitanfallBridge( HttpRequestResponse response )
                 wait 0.25
             }
         }
-        last_discord_timestamp = StringReplaceTime( newresponse[2] )
     }
     else
     {
@@ -350,8 +380,8 @@ void function GetUserNickname( string userid )
     string url = "https://discord.com/api/v10/guilds/" + guildid + "/members/" + userid
     request.url = url
     request.headers = {
-        ["Authorization"] = [ "Bot " + bottoken ],
-        ["User-Agent"] = [ "NorthstarDiscordLogger/1.0" ]
+        [ "Authorization" ] = [ "Bot " + bottoken ],
+        [ "User-Agent" ] = [ "DiscordToTitanfallBridge" ]
     }
     void functionref( HttpRequestResponse ) onSuccess = void function ( HttpRequestResponse response ) : ( userid )
     {
@@ -418,11 +448,38 @@ void function EndThreadDiscordToTitanfallBridge( string meow, string meower, str
     string channelid = GetConVarString( "discordlogger_channelid" )
     HttpRequest request
     request.method = HttpRequestMethod.PUT
-    string url = "https://discord.com/api/v10/channels/" + channelid + "/messages/" + meowest + "/reactions/🟢/@me"
+    string url = "https://discord.com/api/v10/channels/" + channelid + "/messages/" + meowest + "/reactions/%F0%9F%9F%A2/@me"
     request.url = url
     request.headers = {
-        ["Authorization"] = [ "Bot " + bottoken ],
-        ["User-Agent"] = [ "NorthstarDiscordLogger/1.0" ]
+        [ "Authorization" ] = [ "Bot " + bottoken ],
+        [ "User-Agent" ] = [ "DiscordToTitanfallBridge" ]
+    }
+    void functionref( HttpRequestResponse ) onSuccess = void function ( HttpRequestResponse response )
+    {
+        if ( response.statusCode != 204 )
+        {
+            print( "[Discord] Poll failed with status: " + response.statusCode.tostring() )
+            print( "[Discord] Response Body: " + response.body )
+        }
+    }
+    void functionref( HttpRequestFailure ) onFailure = void function ( HttpRequestFailure failure )
+    {
+        print( "[Discord] Poll failed: " + failure.errorMessage )
+    }
+    NSHttpRequest( request, onSuccess, onFailure )
+}
+
+void function RedCircleDiscordToTitanfallBridge( string meowest )
+{
+    string bottoken = GetConVarString( "discordlogger_bottoken" )
+    string channelid = GetConVarString( "discordlogger_channelid" )
+    HttpRequest request
+    request.method = HttpRequestMethod.PUT
+    string url = "https://discord.com/api/v10/channels/" + channelid + "/messages/" + meowest + "/reactions/%F0%9F%94%B4/@me"
+    request.url = url
+    request.headers = {
+        [ "Authorization" ] = [ "Bot " + bottoken ],
+        [ "User-Agent" ] = [ "DiscordToTitanfallBridge" ]
     }
     void functionref( HttpRequestResponse ) onSuccess = void function ( HttpRequestResponse response )
     {
