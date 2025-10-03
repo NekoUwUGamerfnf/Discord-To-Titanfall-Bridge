@@ -238,7 +238,7 @@ void function PollDiscordMessages()
             while ( meow.find( ":\"" ) )
                 meow = meow.slice( 1 )
             meow = meow.slice( 2 )
-            if ( meow.len() <= 255 && meow.len() > 0 )
+            if ( meow.len() <= 200 && meow.len() > 0 )
             {
                 last_discord_timestamp = StringReplaceTime( newresponse[2] )
                 file.firsttime = false
@@ -335,7 +335,7 @@ void function ThreadDiscordToTitanfallBridge( HttpRequestResponse response )
                 while ( meowest.find( "id" ) )
                     meowest = meowest.slice( 1 )
                 meowest = meowest.slice( 5 )
-                if ( meow.len() > 255 || meow.len() <= 0 )
+                if ( meow.len() > 200 || meow.len() <= 0 )
                 {
                     RedCircleDiscordToTitanfallBridge( meowest )
                     continue
