@@ -324,16 +324,6 @@ void function ThreadDiscordToTitanfallBridge( HttpRequestResponse response )
                 while ( meow.find( ":\"" ) )
                     meow = meow.slice( 1 )
                 meow = meow.slice( 2 )
-                if ( meow.len() > 255 || meow.len() <= 0 )
-                {
-                    string meowest = newresponse[ i + 3 ]
-                    meowest = meowest.slice( 0, -2 )
-                    while ( meowest.find( "id" ) )
-                        meowest = meowest.slice( 1 )
-                    meowest = meowest.slice( 5 )
-                    RedCircleDiscordToTitanfallBridge( meowest )
-                    continue
-                }
                 if ( i == 0 )
                     last_discord_timestamp = StringReplaceTime( newresponse[2] )
                 string meower = newresponse[ i + 5 ]
@@ -345,6 +335,11 @@ void function ThreadDiscordToTitanfallBridge( HttpRequestResponse response )
                 while ( meowest.find( "id" ) )
                     meowest = meowest.slice( 1 )
                 meowest = meowest.slice( 5 )
+                if ( meow.len() > 255 || meow.len() <= 0 )
+                {
+                    RedCircleDiscordToTitanfallBridge( meowest )
+                    continue
+                }
                 thread EndThreadDiscordToTitanfallBridge( meow, meower, meowest )
                 wait 0.25
             }
@@ -443,7 +438,7 @@ void function EndThreadDiscordToTitanfallBridge( string meow, string meower, str
 {
     GetUserNickname( meower )
     meower = GetUserTrueNickname( meower )
-    SendMessageToPlayers( "[38;2;88;101;242m" + meower + ": \x1b[0m" + meow )
+    SendMessageToPlayers( "[38;2;88;101;242m" + "[Discord] " + meower + ": \x1b[0m" + meow )
     string bottoken = GetConVarString( "discordlogger_bottoken" )
     string channelid = GetConVarString( "discordlogger_channelid" )
     HttpRequest request
