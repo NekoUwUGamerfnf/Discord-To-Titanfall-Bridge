@@ -337,9 +337,10 @@ void function ThreadDiscordToTitanfallBridge( HttpRequestResponse response )
                     nyah = true
                 }
                 if ( !nyah )
-                thread EndThreadDiscordToTitanfallBridge( meow, meower, meowest )
-                wait 0.25
+                    thread EndThreadDiscordToTitanfallBridge( meow, meower, meowest )
             }
+            if ( i == 0 || i == 7 || i == 14 || i == 21 || i == 28 )
+                wait 0.25
         }
         last_discord_timestamp = StringReplaceTime( newresponse[2] )
     }
@@ -427,7 +428,7 @@ void function SendMessageToPlayers( string message )
 void function ActuallySendMessageToPlayers( entity player, string message )
 {
     player.EndSignal( "OnDestroy" )
-    while ( !IsAlive( player ) && !IsLobby() )
+    while ( !IsAlive( player ) && !IsLobby() && GetGameState() > eGameState.Playing )
         WaitFrame()
     Chat_ServerPrivateMessage( player, message, false, false )
 }
