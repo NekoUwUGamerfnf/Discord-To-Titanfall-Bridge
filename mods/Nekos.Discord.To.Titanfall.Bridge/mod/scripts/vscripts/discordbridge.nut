@@ -47,6 +47,8 @@ struct
     int queue = 0
     int realqueue = 0
     float queuetime = 0
+    table<entity, int> anotherqueue
+    table<entity, int> anotherrealqueue
     table<string, string> namelist
     bool firsttime = true
 } file
@@ -260,47 +262,20 @@ void function ThreadDiscordToTitanfallBridge( HttpRequestResponse response )
         array<string> newresponse = split( responsebody, "" )
         if ( newresponse.len() < 6 || StringReplaceTime( newresponse[2] ) == last_discord_timestamp )
             return
-        for ( int i = 0; i < newresponse.len(); i++ )
+        array<int> messages = [28, 21, 14, 7, 0]
+        for ( int i = 0; i < messages.len(); i++ )
         {
-            if ( (i == 0 || i == 7 || i == 14 || i == 21 || i == 28) && StringReplaceTime( newresponse[ i + 2 ] ) <= last_discord_timestamp )
-                break
+            int i = messages[i]
+            if ( i + 6 >= newresponse.len() )
+                continue
+            if ( StringReplaceTime( newresponse[ i + 2 ] ) <= last_discord_timestamp )
+                continue
             bool nyah = false
-            string meow = newresponse[i]
-            // 0 for content
-            // 1 for nothing
-            // 2 for time
-            // 3 for nothing
-            // 4 for global name
-            // 5 for nothing
-            // 6 for nothing
-            // 7 for next row of messages
-            if ( i < 7 )
+            if ( newresponse[ i + 5 ].find( "\"bot\"" ) )
+                nyah = true
+            if ( !nyah )
             {
-                if ( newresponse[ 5 ].find( "\"bot\"" ) )
-                    nyah = true
-            }
-            else if ( i >= 7 && i < 14 )
-            {
-                if ( newresponse[ 12 ].find( "\"bot\"" ) )
-                    nyah = true
-            }
-            else if ( i >= 14 && i < 21 )
-            {
-                if ( newresponse[ 19 ].find( "\"bot\"" ) )
-                    nyah = true
-            }
-            else if ( i >= 21 && i < 28 )
-            {
-                if ( newresponse[ 26 ].find( "\"bot\"" ) )
-                    nyah = true
-            }
-            else if ( i >= 28 && i < 35 )
-            {
-                if ( newresponse[ 33 ].find( "\"bot\"" ) )
-                    nyah = true
-            } 
-            if ( (i == 0 || i == 7 || i == 14 || i == 21 || i == 28) && !nyah )
-            {
+                string meow = newresponse[i]
                 meow = meow.slice( 0, -2 )
                 while ( meow.find( ":\"" ) )
                     meow = meow.slice( 1 )
@@ -339,8 +314,7 @@ void function ThreadDiscordToTitanfallBridge( HttpRequestResponse response )
                 if ( !nyah )
                     thread EndThreadDiscordToTitanfallBridge( meow, meower, meowest )
             }
-            if ( i == 0 || i == 7 || i == 14 || i == 21 || i == 28 )
-                wait 0.25
+            wait 0.25
         }
         last_discord_timestamp = StringReplaceTime( newresponse[2] )
     }
@@ -428,8 +402,14 @@ void function SendMessageToPlayers( string message )
 void function ActuallySendMessageToPlayers( entity player, string message )
 {
     player.EndSignal( "OnDestroy" )
-    while ( !IsAlive( player ) && !IsLobby() && GetGameState() > eGameState.Playing )
+    if ( !( player in file.anotherqueue ) )
+        file.anotherqueue[ player ] <- 0
+    int queue = file.anotherqueue[ player ]
+    if ( !( player in file.anotherrealqueue ) )
+        file.anotherrealqueue[ player ] <- 0
+    while ( !IsAlive( player ) && !IsLobby() && file.anotherrealqueue[ player ] < queue )
         WaitFrame()
+    file.anotherrealqueue[ player ] <- file.anotherrealqueue[ player ] + 1
     Chat_ServerPrivateMessage( player, message, false, false )
 }
 
