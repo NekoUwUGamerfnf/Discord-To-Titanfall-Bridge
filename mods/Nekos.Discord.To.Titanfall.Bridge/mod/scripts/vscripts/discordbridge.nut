@@ -335,7 +335,7 @@ int function StringReplaceTime( string time )
     returntime = StringReplace( returntime, "T", "", true )
     
     if ( returntime.len() >= 14 )
-        returntime = returntime.slice( 10, -5 )
+        returntime = returntime.slice( 8, -7 )
     return returntime.tointeger()
 }
 
