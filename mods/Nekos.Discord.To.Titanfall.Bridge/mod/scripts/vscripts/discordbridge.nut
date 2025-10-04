@@ -407,7 +407,9 @@ void function ActuallySendMessageToPlayers( entity player, string message )
     int queue = file.anotherqueue[ player ]
     if ( !( player in file.anotherrealqueue ) )
         file.anotherrealqueue[ player ] <- 0
-    while ( !IsAlive( player ) && !IsLobby() && file.anotherrealqueue[ player ] < queue )
+    if ( GetGameState() > eGameState.Playing || file.anotherrealqueue[ player ] < queue )
+        WaitFrame()
+    while ( !IsAlive( player ) && !IsLobby() )
         WaitFrame()
     file.anotherrealqueue[ player ] <- file.anotherrealqueue[ player ] + 1
     Chat_ServerPrivateMessage( player, message, false, false )
