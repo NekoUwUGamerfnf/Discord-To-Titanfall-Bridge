@@ -262,8 +262,9 @@ void function ThreadDiscordToTitanfallBridge( HttpRequestResponse response )
             return
         for ( int i = 0; i < newresponse.len(); i++ )
         {
-            if ( StringReplaceTime( newresponse[ i + 2 ] ) <= last_discord_timestamp )
+            if ( (i == 0 || i == 7 || i == 14 || i == 21 || i == 28) && StringReplaceTime( newresponse[ i + 2 ] ) <= last_discord_timestamp )
                 break
+            bool nyah = false
             string meow = newresponse[i]
             // 0 for content
             // 1 for nothing
@@ -276,29 +277,29 @@ void function ThreadDiscordToTitanfallBridge( HttpRequestResponse response )
             if ( i < 7 )
             {
                 if ( newresponse[ 5 ].find( "\"bot\"" ) )
-                    continue
+                    nyah = true
             }
             else if ( i >= 7 && i < 14 )
             {
                 if ( newresponse[ 12 ].find( "\"bot\"" ) )
-                    continue
+                    nyah = true
             }
             else if ( i >= 14 && i < 21 )
             {
                 if ( newresponse[ 19 ].find( "\"bot\"" ) )
-                    continue
+                    nyah = true
             }
             else if ( i >= 21 && i < 28 )
             {
                 if ( newresponse[ 26 ].find( "\"bot\"" ) )
-                    continue
+                    nyah = true
             }
             else if ( i >= 28 && i < 35 )
             {
                 if ( newresponse[ 33 ].find( "\"bot\"" ) )
-                    continue
+                    nyah = true
             } 
-            if ( i == 0 || i == 7 || i == 14 || i == 21 || i == 28 )
+            if ( (i == 0 || i == 7 || i == 14 || i == 21 || i == 28) && !nyah )
             {
                 meow = meow.slice( 0, -2 )
                 while ( meow.find( ":\"" ) )
@@ -329,12 +330,13 @@ void function ThreadDiscordToTitanfallBridge( HttpRequestResponse response )
                         RedCircleDiscordToTitanfallBridge( meowest )
                 }
                 if ( meow.tolower() == "?rcon" || (meow.len() >= 5 && meow.slice( 0, 5 - meow.len() ).tolower() == "?rcon") )
-                    continue
+                    nyah = true
                 if ( meow.len() > 200 || meow.len() <= 0 )
                 {
                     RedCircleDiscordToTitanfallBridge( meowest )
-                    continue
+                    nyah = true
                 }
+                if ( !nyah )
                 thread EndThreadDiscordToTitanfallBridge( meow, meower, meowest )
                 wait 0.25
             }
