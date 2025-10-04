@@ -408,7 +408,7 @@ void function GetUserNickname( string userid )
 
 string function GetUserTrueNickname( string userid )
 {
-    wait 0.5
+    wait 0.75
     if ( userid in file.namelist )
         return file.namelist[ userid ]
     
