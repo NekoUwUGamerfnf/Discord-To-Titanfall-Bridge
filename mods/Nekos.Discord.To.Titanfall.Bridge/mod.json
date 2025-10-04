@@ -6,29 +6,46 @@
 	"RequiredOnClient": false,
 	"ConVars": [
 		// Titanfall To Discord
+		// Required To Send Messages To Discord
 		{
 			"Name": "discordbridge_webhook",
 			"DefaultValue": ""
 		},
+		// Sends Messages That discordbridge_webhook Didn't Send
+		{
+			"Name": "discordbridge_commandlogwebhook",
+			"DefaultValue": ""
+		},
+		// Sends ```Server Has Crashed And Or Restarted``` To discordbridge_webhook
 		{
 			"Name": "discordbridge_shouldsendmessageifservercrashandorrestart",
-			"DefaultValue": "1"
+			"DefaultValue": "1" // Set To 0 To Disable
 		},
 		// Discord To Titanfall
+		// Bot Needs "Send Messages" "Add Reactions" "Read Message History" "View Channel" Permissions To discordbridge_channelid And discordbridge_rconchannelid If Set
+		// Required To Connect To Discord
 		{
 			"Name": "discordbridge_bottoken",
 			"DefaultValue": ""
 		},
+		// Required To Get Messages
 		{
 			"Name": "discordbridge_channelid",
 			"DefaultValue": ""
 		},
+		// Required To Get Discord Names
 		{
 			"Name": "discordbridge_serverid",
 			"DefaultValue": ""
 		},
+		// Rcon Requires Discord To Titanfall 🔴 Means Not Allowed 🟢 Means Allowed And Ran
 		{
 			"Name": "discordbridge_rconusers",
+			"DefaultValue": "" // Example Value "402550402140340224" Or "402550402140340224,1415868227170336808" Leaving Empty Is Fine
+		},
+		// Defaults To discordbridge_channelid If Empty
+		{
+			"Name": "discordbridge_rconchannelid",
 			"DefaultValue": ""
 		}
 	],
