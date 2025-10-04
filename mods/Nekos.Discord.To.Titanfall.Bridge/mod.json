@@ -1,0 +1,44 @@
+{
+	"Name": "Neko's Discord To Titanfall Bridge",
+	"Description": "",
+	"Version": "1.0.0",
+	"LoadPriority": 20,
+	"RequiredOnClient": false,
+	"ConVars": [
+		// Titanfall To Discord
+		{
+			"Name": "discordbridge_webhook",
+			"DefaultValue": ""
+		},
+		{
+			"Name": "discordbridge_shouldsendmessageifservercrashandorrestart",
+			"DefaultValue": "1"
+		},
+		// Discord To Titanfall
+		{
+			"Name": "discordbridge_bottoken",
+			"DefaultValue": ""
+		},
+		{
+			"Name": "discordbridge_channelid",
+			"DefaultValue": ""
+		},
+		{
+			"Name": "discordbridge_serverid",
+			"DefaultValue": ""
+		},
+		{
+			"Name": "discordbridge_rconusers",
+			"DefaultValue": ""
+		}
+	],
+	"Scripts": [
+		{
+			"Path": "discordbridge.nut",
+			"RunOn": "SERVER",
+			"ServerCallback": {
+				"After": "discordbridge_init"
+			}
+		}
+	]
+}
