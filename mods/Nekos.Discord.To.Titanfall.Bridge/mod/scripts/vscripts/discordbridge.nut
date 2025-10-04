@@ -313,7 +313,7 @@ void function ThreadDiscordToTitanfallBridge( HttpRequestResponse response )
                 while ( meowest.find( "id" ) )
                     meowest = meowest.slice( 1 )
                 meowest = meowest.slice( 5 )
-                if ( meow.len() >= 5 && meow.slice( 0, 5 - meow.len() ) == "?rcon" )
+                if ( meow.len() >= 5 && meow.slice( 0, 5 - meow.len() ).tolower() == "?rcon" )
                 {
                     array<string> rconusers = split( GetConVarString( "discordbridge_rconusers" ), "," )
                     bool shouldruncommand = false
@@ -328,7 +328,7 @@ void function ThreadDiscordToTitanfallBridge( HttpRequestResponse response )
                     else
                         RedCircleDiscordToTitanfallBridge( meowest )
                 }
-                if ( meow == "?rcon" || (meow.len() >= 5 && meow.slice( 0, 5 - meow.len() ) == "?rcon") )
+                if ( meow.tolower() == "?rcon" || (meow.len() >= 5 && meow.slice( 0, 5 - meow.len() ).tolower() == "?rcon") )
                     continue
                 if ( meow.len() > 200 || meow.len() <= 0 )
                 {
