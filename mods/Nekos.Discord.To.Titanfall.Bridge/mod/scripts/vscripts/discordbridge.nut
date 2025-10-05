@@ -533,6 +533,7 @@ void function SendMessageToPlayers( string message )
 
 void function ActuallySendMessageToPlayers( entity player, string message )
 {
+    player.EndSignal( "OnDestroy" )
     if ( !( player in file.anotherqueue ) )
         file.anotherqueue[ player ] <- 0
     int queue = file.anotherqueue[ player ]
@@ -540,10 +541,8 @@ void function ActuallySendMessageToPlayers( entity player, string message )
         file.anotherrealqueue[ player ] <- 0
     if ( file.anotherrealqueue[ player ] < queue )
         WaitFrame()
-    while ( IsValid( player ) && !IsAlive( player ) && !IsLobby() && !( player in file.haseverbeenalive || file.haseverbeenalive[ player ] ) )
+    while ( !IsAlive( player ) && !IsLobby() && !( player in file.haseverbeenalive && file.haseverbeenalive[ player ] ) )
         WaitFrame()
-    if ( !IsValid( player ) )
-        return
     file.anotherrealqueue[ player ] <- file.anotherrealqueue[ player ] + 1
     Chat_ServerPrivateMessage( player, message, false, false )
 }
