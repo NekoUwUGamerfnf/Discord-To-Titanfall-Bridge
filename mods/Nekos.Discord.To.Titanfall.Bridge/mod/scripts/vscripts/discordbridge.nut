@@ -190,6 +190,18 @@ void function MessageQueue()
     file.realqueue += 1
 }
 
+void function SendServerCrashedAndOrRestartedMessage()
+{
+    MessageQueue()
+    string message = "Server Has Crashed And Or Restarted"
+    SendMessageToDiscord( message, false )
+    message = "```" + message + "```"
+    SendMessageToDiscord( message, true, false )
+}
+
+int last_discord_timestamp = 0
+int rconlast_discord_timestamp = 0
+
 void function DiscordMessagePoller()
 {
     WaitFrame()
@@ -205,9 +217,6 @@ void function DiscordMessagePoller()
         wait 1.25
     }
 }
-
-int last_discord_timestamp = 0
-int rconlast_discord_timestamp = 0
 
 void function PollDiscordMessages()
 {
@@ -609,10 +618,4 @@ void function GreenCircleDiscordToTitanfallBridge( string meowest, string channe
 void function HasEverBeenAlive( entity player )
 {
     file.haseverbeenalive[ player ] <- true
-}
-
-void function SendServerCrashedAndOrRestartedMessage()
-{
-    MessageQueue()
-    SendMessageToDiscord( "```Server Has Crashed And Or Restarted```" )
 }
