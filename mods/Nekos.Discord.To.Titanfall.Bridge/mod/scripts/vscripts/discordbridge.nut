@@ -144,7 +144,7 @@ void function SendMessageToDiscord( string message, bool sendmessage = true, boo
         return
 
     if ( printmessage )
-        print( "[DiscordBridge] Sending [" + message + "] To Discord" )
+        print( "[DiscordBridge] Messaging Discord Users: " + message )
 
     if ( !sendmessage || GetConVarString( "discordbridge_webhook" ) == "" )
         return
@@ -341,6 +341,7 @@ void function ThreadDiscordToTitanfallBridge( HttpRequestResponse response )
                 meowest = meowest.slice( 5 )
                 if ( meow.len() >= 5 && meow.slice( 0, 5 - meow.len() ).tolower() == "?rcon" && GetConVarString( "discordbridge_rconchannelid" ) == "" )
                 {
+                    meow = StringReplace( meow, "\\", "", true )
                     array<string> rconusers = split( GetConVarString( "discordbridge_rconusers" ), "," )
                     bool shouldruncommand = false
                     for ( int i = 0; i < rconusers.len(); i++ )
@@ -349,7 +350,8 @@ void function ThreadDiscordToTitanfallBridge( HttpRequestResponse response )
                     if ( shouldruncommand )
                     {
                         GreenCircleDiscordToTitanfallBridge( meowest, GetConVarString( "discordbridge_channelid" ) )
-                        ServerCommand( StringReplace( meow.slice( 5 ), "\\", "", true ) )
+                        print( "[DiscordBridge] Running Rcon Command: " + meow )
+                        ServerCommand( meow.slice( 5 ) )
                     }
                     else
                         RedCircleDiscordToTitanfallBridge( meowest, GetConVarString( "discordbridge_channelid" ) )
@@ -428,6 +430,7 @@ void function RconThreadDiscordToTitanfallBridge( HttpRequestResponse response )
                 meowest = meowest.slice( 5 )
                 if ( meow.len() >= 5 && meow.slice( 0, 5 - meow.len() ).tolower() == "?rcon" )
                 {
+                    meow = StringReplace( meow, "\\", "", true )
                     array<string> rconusers = split( GetConVarString( "discordbridge_rconusers" ), "," )
                     bool shouldruncommand = false
                     for ( int i = 0; i < rconusers.len(); i++ )
@@ -436,7 +439,8 @@ void function RconThreadDiscordToTitanfallBridge( HttpRequestResponse response )
                     if ( shouldruncommand )
                     {
                         GreenCircleDiscordToTitanfallBridge( meowest, GetConVarString( "discordbridge_rconchannelid" ) )
-                        ServerCommand( StringReplace( meow.slice( 5 ), "\\", "", true ) )
+                        print( "[DiscordBridge] Running Rcon Command: " + meow )
+                        ServerCommand( meow.slice( 5 ) )
                     }
                     else
                         RedCircleDiscordToTitanfallBridge( meowest, GetConVarString( "discordbridge_rconchannelid" ) )
@@ -548,7 +552,9 @@ void function EndThreadDiscordToTitanfallBridge( string meow, string meower, str
 {
     GetUserNickname( meower )
     meower = GetUserTrueNickname( meower )
-    SendMessageToPlayers( "[38;2;88;101;242m" + "[Discord] " + meower + ": \x1b[0m" + StringReplace( meow, "\\", "", true ) )
+    meow = StringReplace( meow, "\\", "", true )
+    print( "[DiscordBridge] Messaging Players: [Discord] " + meower + ": " + meow )
+    SendMessageToPlayers( "[38;2;88;101;242m" + "[Discord] " + meower + ": \x1b[0m" + meow )
     GreenCircleDiscordToTitanfallBridge( meowest, GetConVarString( "discordbridge_channelid" ) )
 }
 
