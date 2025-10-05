@@ -65,8 +65,10 @@ ClServer_MessageStruct function LogMessage( ClServer_MessageStruct message )
     if ( msg.len() == 0 )
         return message
 
-    if ( format( "%c", msg[0] ) == "!" && message.shouldBlock && GetConVarString( "discordbridge_commandlogwebhook" ) == "" )
-        return message
+    bool blockedmessage = false
+
+    if ( format( "%c", msg[0] ) == "!" && message.shouldBlock )
+        blockedmessage = true
 
     string playername = message.player.GetPlayerName()
     int playerteam = message.player.GetTeam()
@@ -94,7 +96,7 @@ ClServer_MessageStruct function LogMessage( ClServer_MessageStruct message )
     SendMessageToDiscord( console_message, false )
     
     string discord_message = "**" + prefix + ":** " + msg
-    SendMessageToDiscord( discord_message, true, false, message.shouldBlock )
+    SendMessageToDiscord( discord_message, true, false, blockedmessage )
     return message
 }
 
@@ -133,7 +135,7 @@ void function LogDisconnect( entity player )
     SendMessageToDiscord( message, true, false )
 }
 
-void function SendMessageToDiscord( string message, bool sendmessage = true, bool printmessage = true, bool messageblock = false )
+void function SendMessageToDiscord( string message, bool sendmessage = true, bool printmessage = true, bool blockedmessage = false )
 {
     if ( GetConVarString( "discordbridge_webhook" ) == "" )
         return
@@ -153,7 +155,7 @@ void function SendMessageToDiscord( string message, bool sendmessage = true, boo
     HttpRequest request
     request.method = HttpRequestMethod.POST
     request.url = GetConVarString( "discordbridge_webhook" )
-    if ( messageblock )
+    if ( blockedmessage )
         request.url = GetConVarString( "discordbridge_commandlogwebhook" )
     request.body = EncodeJSON( payload )
     request.headers = {
@@ -311,11 +313,11 @@ void function ThreadDiscordToTitanfallBridge( HttpRequestResponse response )
         for ( int i = 0; i < messages.len(); i++ )
         {
             int i = messages[i]
-            if ( i + 6 >= newresponse.len() )
-                continue
-            if ( StringReplaceTime( newresponse[ i + 2 ] ) <= last_discord_timestamp )
-                continue
+            if ( i + 5 >= newresponse.len() )
+                break
             bool nyah = false
+            if ( StringReplaceTime( newresponse[ i + 2 ] ) <= last_discord_timestamp )
+                nyah = true
             if ( newresponse[ i + 5 ].find( "\"bot\"" ) )
                 nyah = true
             if ( !nyah )
@@ -398,11 +400,11 @@ void function RconThreadDiscordToTitanfallBridge( HttpRequestResponse response )
         for ( int i = 0; i < messages.len(); i++ )
         {
             int i = messages[i]
-            if ( i + 6 >= newresponse.len() )
-                continue
-            if ( StringReplaceTime( newresponse[ i + 2 ] ) <= rconlast_discord_timestamp )
-                continue
+            if ( i + 5 >= newresponse.len() )
+                break
             bool nyah = false
+            if ( StringReplaceTime( newresponse[ i + 2 ] ) <= rconlast_discord_timestamp )
+                nyah = true
             if ( newresponse[ i + 5 ].find( "\"bot\"" ) )
                 nyah = true
             if ( !nyah )
