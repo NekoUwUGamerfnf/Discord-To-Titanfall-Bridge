@@ -360,8 +360,8 @@ void function ThreadDiscordToTitanfallBridge( HttpRequestResponse response )
                 }
                 if ( !nyah )
                     thread EndThreadDiscordToTitanfallBridge( meow, meower, meowest )
+                wait 0.25
             }
-            wait 0.25
         }
         last_discord_timestamp = StringReplaceTime( newresponse[2] )
     }
