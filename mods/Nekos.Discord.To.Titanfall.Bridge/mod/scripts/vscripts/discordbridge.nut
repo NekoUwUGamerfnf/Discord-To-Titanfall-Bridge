@@ -313,12 +313,12 @@ void function ThreadDiscordToTitanfallBridge( HttpRequestResponse response )
         for ( int i = 0; i < messages.len(); i++ )
         {
             int i = messages[i]
-            if ( i + 5 >= newresponse.len() )
-                break
             bool nyah = false
-            if ( StringReplaceTime( newresponse[ i + 2 ] ) <= last_discord_timestamp )
+            if ( i + 6 >= newresponse.len() )
                 nyah = true
-            if ( newresponse[ i + 5 ].find( "\"bot\"" ) )
+            if ( !nyah && StringReplaceTime( newresponse[ i + 2 ] ) <= rconlast_discord_timestamp )
+                nyah = true
+            if ( !nyah && newresponse[ i + 5 ].find( "\"bot\"" ) )
                 nyah = true
             if ( !nyah )
             {
@@ -400,12 +400,12 @@ void function RconThreadDiscordToTitanfallBridge( HttpRequestResponse response )
         for ( int i = 0; i < messages.len(); i++ )
         {
             int i = messages[i]
-            if ( i + 5 >= newresponse.len() )
-                break
             bool nyah = false
-            if ( StringReplaceTime( newresponse[ i + 2 ] ) <= rconlast_discord_timestamp )
+            if ( i + 6 >= newresponse.len() )
                 nyah = true
-            if ( newresponse[ i + 5 ].find( "\"bot\"" ) )
+            if ( !nyah && StringReplaceTime( newresponse[ i + 2 ] ) <= rconlast_discord_timestamp )
+                nyah = true
+            if ( !nyah && newresponse[ i + 5 ].find( "\"bot\"" ) )
                 nyah = true
             if ( !nyah )
             {
