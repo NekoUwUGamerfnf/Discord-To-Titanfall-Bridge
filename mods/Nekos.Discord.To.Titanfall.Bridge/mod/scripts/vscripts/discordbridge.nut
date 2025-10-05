@@ -316,7 +316,7 @@ void function ThreadDiscordToTitanfallBridge( HttpRequestResponse response )
             bool nyah = false
             if ( i + 6 >= newresponse.len() )
                 nyah = true
-            if ( !nyah && StringReplaceTime( newresponse[ i + 2 ] ) <= rconlast_discord_timestamp )
+            if ( !nyah && StringReplaceTime( newresponse[ i + 2 ] ) <= last_discord_timestamp )
                 nyah = true
             if ( !nyah && newresponse[ i + 5 ].find( "\"bot\"" ) )
                 nyah = true
