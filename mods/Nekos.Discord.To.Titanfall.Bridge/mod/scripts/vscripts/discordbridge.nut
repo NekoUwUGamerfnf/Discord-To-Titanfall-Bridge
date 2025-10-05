@@ -12,6 +12,7 @@ void function discordbridge_init()
     AddCallback_OnClientDisconnected( LogDisconnect )
     thread MapChange()
     
+    AddCallback_OnPlayerRespawned( HasEverBeenAlive )
     thread DiscordMessagePoller()
 }
 
@@ -47,8 +48,10 @@ struct
     int queue = 0
     int realqueue = 0
     float queuetime = 0
+
     table<entity, int> anotherqueue
     table<entity, int> anotherrealqueue
+    table<entity, bool> haseverbeenalive
     table<string, string> namelist
     bool firsttime = true
 } file
@@ -526,7 +529,6 @@ void function SendMessageToPlayers( string message )
 
 void function ActuallySendMessageToPlayers( entity player, string message )
 {
-    player.EndSignal( "OnDestroy" )
     if ( !( player in file.anotherqueue ) )
         file.anotherqueue[ player ] <- 0
     int queue = file.anotherqueue[ player ]
@@ -534,8 +536,10 @@ void function ActuallySendMessageToPlayers( entity player, string message )
         file.anotherrealqueue[ player ] <- 0
     if ( file.anotherrealqueue[ player ] < queue )
         WaitFrame()
-    while ( !IsAlive( player ) && !IsLobby() && GetGameState() >= eGameState.Playing )
+    while ( IsValid( player ) && !IsAlive( player ) && !IsLobby() && !( player in file.haseverbeenalive || file.haseverbeenalive[ player ] ) )
         WaitFrame()
+    if ( !IsValid( player ) )
+        return
     file.anotherrealqueue[ player ] <- file.anotherrealqueue[ player ] + 1
     Chat_ServerPrivateMessage( player, message, false, false )
 }
@@ -598,6 +602,11 @@ void function GreenCircleDiscordToTitanfallBridge( string meowest, string channe
         print( "[Discord] Poll failed: " + failure.errorMessage )
     }
     NSHttpRequest( request, onSuccess, onFailure )
+}
+
+void function HasEverBeenAlive( entity player )
+{
+    file.haseverbeenalive[ player ] <- true
 }
 
 void function SendServerCrashedAndOrRestartedMessage()
