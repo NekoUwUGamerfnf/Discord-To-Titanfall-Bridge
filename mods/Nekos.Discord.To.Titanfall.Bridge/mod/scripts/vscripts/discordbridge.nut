@@ -54,6 +54,7 @@ struct
     table<entity, bool> haseverbeenalive
     table<string, string> namelist
     bool firsttime = true
+    bool rconfirsttime = true
 } file
 
 ClServer_MessageStruct function LogMessage( ClServer_MessageStruct message )
@@ -205,8 +206,8 @@ void function DiscordMessagePoller()
     }
 }
 
-int last_discord_timestamp = 2147483647
-int rconlast_discord_timestamp = 2147483647
+int last_discord_timestamp = 0
+int rconlast_discord_timestamp = 0
 
 void function PollDiscordMessages()
 {
@@ -231,10 +232,8 @@ void function PollDiscordMessages()
             responsebody = StringReplace( responsebody, "\",\"edited_timestamp\"", ",\"edited_timestamp\"", true )
             array<string> newresponse = split( responsebody, "" )
             if ( newresponse.len() >= 2 )
-            {
                 last_discord_timestamp = StringReplaceTime( newresponse[2] )
-                file.firsttime = false
-            }
+            file.firsttime = false
         }
         else
             thread ThreadDiscordToTitanfallBridge( response )
@@ -263,7 +262,7 @@ void function RconPollDiscordMessages()
     
     void functionref( HttpRequestResponse ) onSuccess = void function ( HttpRequestResponse response )
     {
-        if ( file.firsttime && response.statusCode == 200 )
+        if ( file.rconfirsttime && response.statusCode == 200 )
         {
             string responsebody = response.body
             responsebody = StringReplace( responsebody, "\"mentions\"", "mentions\"", true )
@@ -271,10 +270,8 @@ void function RconPollDiscordMessages()
             responsebody = StringReplace( responsebody, "\",\"edited_timestamp\"", ",\"edited_timestamp\"", true )
             array<string> newresponse = split( responsebody, "" )
             if ( newresponse.len() >= 2 )
-            {
                 rconlast_discord_timestamp = StringReplaceTime( newresponse[2] )
-                file.firsttime = false
-            }
+            file.rconfirsttime = false
         }
         else
             thread RconThreadDiscordToTitanfallBridge( response )
