@@ -199,8 +199,9 @@ void function SendServerCrashedAndOrRestartedMessage()
     SendMessageToDiscord( message, true, false )
 }
 
-int last_discord_timestamp = 0
-int rconlast_discord_timestamp = 0
+array<string> last_discord_timestamp_array = []
+
+array<string> rconlast_discord_timestamp_array = []
 
 void function DiscordMessagePoller()
 {
@@ -236,12 +237,29 @@ void function PollDiscordMessages()
         if ( file.firsttime && response.statusCode == 200 )
         {
             string responsebody = response.body
+            responsebody = StringReplace( responsebody, "\"author\"", "author\"", true )
+            responsebody = StringReplace( responsebody, "\"pinned\"", "pinned\"", true )
             responsebody = StringReplace( responsebody, "\"mentions\"", "mentions\"", true )
+            responsebody = StringReplace( responsebody, "\"channel_id\"", "channel_id\"", true )
+            responsebody = StringReplace( responsebody, "},{", "[{", true )
             responsebody = StringReplace( responsebody, "\"timestamp\":\"", "\"timestamp\":", true )
             responsebody = StringReplace( responsebody, "\",\"edited_timestamp\"", ",\"edited_timestamp\"", true )
             array<string> newresponse = split( responsebody, "" )
-            if ( newresponse.len() >= 2 )
-                last_discord_timestamp = StringReplaceTime( newresponse[2] )
+            array<int> timestamps = [0, 7, 14, 21, 28]
+            array<string> last_discord_timestamp = []
+            for ( int i = 0; i < timestamps.len(); i++ )
+                if ( timestamps[i] <= newresponse.len() )
+                if ( i == 4 )
+                    last_discord_timestamp.append( newresponse[30] )
+                else if ( i == 3 )
+                    last_discord_timestamp.append( newresponse[23] )
+                else if ( i == 2 )
+                    last_discord_timestamp.append( newresponse[16] )
+                else if ( i == 1 )
+                    last_discord_timestamp.append( newresponse[9] )
+                else if ( i == 0 )
+                    last_discord_timestamp.append( newresponse[2] )
+            last_discord_timestamp_array = last_discord_timestamp
             file.firsttime = false
         }
         else
@@ -274,12 +292,29 @@ void function RconPollDiscordMessages()
         if ( file.rconfirsttime && response.statusCode == 200 )
         {
             string responsebody = response.body
+            responsebody = StringReplace( responsebody, "\"author\"", "author\"", true )
+            responsebody = StringReplace( responsebody, "\"pinned\"", "pinned\"", true )
             responsebody = StringReplace( responsebody, "\"mentions\"", "mentions\"", true )
+            responsebody = StringReplace( responsebody, "\"channel_id\"", "channel_id\"", true )
+            responsebody = StringReplace( responsebody, "},{", "[{", true )
             responsebody = StringReplace( responsebody, "\"timestamp\":\"", "\"timestamp\":", true )
             responsebody = StringReplace( responsebody, "\",\"edited_timestamp\"", ",\"edited_timestamp\"", true )
             array<string> newresponse = split( responsebody, "" )
-            if ( newresponse.len() >= 2 )
-                rconlast_discord_timestamp = StringReplaceTime( newresponse[2] )
+            array<int> timestamps = [28, 21, 14, 7, 0]
+            array<string> rconlast_discord_timestamp = []
+            for ( int i = 0; i < timestamps.len(); i++ )
+                if ( timestamps[i] <= newresponse.len() )
+                if ( i == 4 )
+                    rconlast_discord_timestamp.append( newresponse[30] )
+                else if ( i == 3 )
+                    rconlast_discord_timestamp.append( newresponse[23] )
+                else if ( i == 2 )
+                    rconlast_discord_timestamp.append( newresponse[16] )
+                else if ( i == 1 )
+                    rconlast_discord_timestamp.append( newresponse[9] )
+                else if ( i == 0 )
+                    rconlast_discord_timestamp.append( newresponse[2] )
+            rconlast_discord_timestamp_array = rconlast_discord_timestamp
             file.rconfirsttime = false
         }
         else
@@ -316,7 +351,7 @@ void function ThreadDiscordToTitanfallBridge( HttpRequestResponse response )
         responsebody = StringReplace( responsebody, "\"timestamp\":\"", "\"timestamp\":", true )
         responsebody = StringReplace( responsebody, "\",\"edited_timestamp\"", ",\"edited_timestamp\"", true )
         array<string> newresponse = split( responsebody, "" )
-        if ( newresponse.len() < 6 || StringReplaceTime( newresponse[2] ) == last_discord_timestamp )
+        if ( newresponse.len() < 6 )
             return
         array<int> messages = [28, 21, 14, 7, 0]
         for ( int i = 0; i < messages.len(); i++ )
@@ -325,7 +360,7 @@ void function ThreadDiscordToTitanfallBridge( HttpRequestResponse response )
             bool nyah = false
             if ( i + 6 >= newresponse.len() )
                 nyah = true
-            if ( !nyah && StringReplaceTime( newresponse[ i + 2 ] ) <= last_discord_timestamp )
+            if ( !nyah && last_discord_timestamp_array.contains( newresponse[ i + 2 ] ) )
                 nyah = true
             if ( !nyah && newresponse[ i + 5 ].find( "\"bot\"" ) )
                 nyah = true
@@ -374,7 +409,20 @@ void function ThreadDiscordToTitanfallBridge( HttpRequestResponse response )
                 wait 0.25
             }
         }
-        last_discord_timestamp = StringReplaceTime( newresponse[2] )
+        array<string> last_discord_timestamp = []
+        for ( int i = 0; i < messages.len(); i++ )
+            if ( messages[i] <= newresponse.len() )
+                if ( i == 4 )
+                    last_discord_timestamp.append( newresponse[30] )
+                else if ( i == 3 )
+                    last_discord_timestamp.append( newresponse[23] )
+                else if ( i == 2 )
+                    last_discord_timestamp.append( newresponse[16] )
+                else if ( i == 1 )
+                    last_discord_timestamp.append( newresponse[9] )
+                else if ( i == 0 )
+                    last_discord_timestamp.append( newresponse[2] )
+        last_discord_timestamp_array = last_discord_timestamp
     }
     else
     {
@@ -405,7 +453,7 @@ void function RconThreadDiscordToTitanfallBridge( HttpRequestResponse response )
         responsebody = StringReplace( responsebody, "\"timestamp\":\"", "\"timestamp\":", true )
         responsebody = StringReplace( responsebody, "\",\"edited_timestamp\"", ",\"edited_timestamp\"", true )
         array<string> newresponse = split( responsebody, "" )
-        if ( newresponse.len() < 6 || StringReplaceTime( newresponse[2] ) == rconlast_discord_timestamp )
+        if ( newresponse.len() < 6 )
             return
         array<int> messages = [28, 21, 14, 7, 0]
         for ( int i = 0; i < messages.len(); i++ )
@@ -414,7 +462,7 @@ void function RconThreadDiscordToTitanfallBridge( HttpRequestResponse response )
             bool nyah = false
             if ( i + 6 >= newresponse.len() )
                 nyah = true
-            if ( !nyah && StringReplaceTime( newresponse[ i + 2 ] ) <= rconlast_discord_timestamp )
+            if ( !nyah && rconlast_discord_timestamp_array.contains( newresponse[ i + 2 ] ) )
                 nyah = true
             if ( !nyah && newresponse[ i + 5 ].find( "\"bot\"" ) )
                 nyah = true
@@ -454,27 +502,26 @@ void function RconThreadDiscordToTitanfallBridge( HttpRequestResponse response )
             }
             wait 0.25
         }
-        rconlast_discord_timestamp = StringReplaceTime( newresponse[2] )
+        array<string> rconlast_discord_timestamp = []
+        for ( int i = 0; i < messages.len(); i++ )
+            if ( messages[i] <= newresponse.len() )
+                if ( i == 4 )
+                    rconlast_discord_timestamp.append( newresponse[30] )
+                else if ( i == 3 )
+                    rconlast_discord_timestamp.append( newresponse[23] )
+                else if ( i == 2 )
+                    rconlast_discord_timestamp.append( newresponse[16] )
+                else if ( i == 1 )
+                    rconlast_discord_timestamp.append( newresponse[9] )
+                else if ( i == 0 )
+                    rconlast_discord_timestamp.append( newresponse[2] )
+        rconlast_discord_timestamp_array = rconlast_discord_timestamp
     }
     else
     {
         print( "[Discord] Poll failed with status: " + response.statusCode.tostring() )
         print( "[Discord] Response Body: " + response.body )
     }
-}
-
-int function StringReplaceTime( string time )
-{
-    string returntime = time
-    returntime = StringReplace( returntime, "-", "", true )
-    returntime = StringReplace( returntime, ":", "", true )
-    returntime = StringReplace( returntime, ".", "", true )
-    returntime = StringReplace( returntime, "+", "", true )
-    returntime = StringReplace( returntime, "T", "", true )
-    
-    if ( returntime.len() >= 14 )
-        returntime = returntime.slice( 8, -7 )
-    return returntime.tointeger()
 }
 
 void function GetUserNickname( string userid )
