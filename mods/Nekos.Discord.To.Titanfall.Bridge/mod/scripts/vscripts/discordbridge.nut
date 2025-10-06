@@ -596,7 +596,7 @@ void function ActuallySendMessageToPlayers( entity player, string message )
         file.anotherrealqueue[ player ] <- 0
     if ( file.anotherrealqueue[ player ] < queue )
         WaitFrame()
-    while ( !IsAlive( player ) && !IsLobby() && !( player in file.haseverbeenalive && file.haseverbeenalive[ player ] ) )
+    while ( !IsAlive( player ) && player in file.haseverbeenalive && file.haseverbeenalive[ player ] )
         WaitFrame()
     file.anotherrealqueue[ player ] <- file.anotherrealqueue[ player ] + 1
     Chat_ServerPrivateMessage( player, message, false, false )
