@@ -245,7 +245,7 @@ void function PollDiscordMessages()
             responsebody = StringReplace( responsebody, "\"timestamp\":\"", "\"timestamp\":", true )
             responsebody = StringReplace( responsebody, "\",\"edited_timestamp\"", ",\"edited_timestamp\"", true )
             array<string> newresponse = split( responsebody, "" )
-            array<int> timestamps = [0, 7, 14, 21, 28]
+            array<int> timestamps = [2, 9, 16, 23, 30]
             array<string> last_discord_timestamp = []
             for ( int i = 0; i < timestamps.len(); i++ )
                 if ( timestamps[i] <= newresponse.len() )
@@ -300,7 +300,7 @@ void function RconPollDiscordMessages()
             responsebody = StringReplace( responsebody, "\"timestamp\":\"", "\"timestamp\":", true )
             responsebody = StringReplace( responsebody, "\",\"edited_timestamp\"", ",\"edited_timestamp\"", true )
             array<string> newresponse = split( responsebody, "" )
-            array<int> timestamps = [28, 21, 14, 7, 0]
+            array<int> timestamps = [2, 9, 16, 23, 30]
             array<string> rconlast_discord_timestamp = []
             for ( int i = 0; i < timestamps.len(); i++ )
                 if ( timestamps[i] <= newresponse.len() )
@@ -409,9 +409,10 @@ void function ThreadDiscordToTitanfallBridge( HttpRequestResponse response )
                 wait 0.25
             }
         }
+        array<int> timestamps = [2, 9, 16, 23, 30]
         array<string> last_discord_timestamp = []
-        for ( int i = 0; i < messages.len(); i++ )
-            if ( messages[i] <= newresponse.len() )
+        for ( int i = 0; i < timestamps.len(); i++ )
+            if ( timestamps[i] <= newresponse.len() )
                 if ( i == 4 )
                     last_discord_timestamp.append( newresponse[30] )
                 else if ( i == 3 )
@@ -502,9 +503,10 @@ void function RconThreadDiscordToTitanfallBridge( HttpRequestResponse response )
             }
             wait 0.25
         }
+        array<int> timestamps = [2, 9, 16, 23, 30]
         array<string> rconlast_discord_timestamp = []
-        for ( int i = 0; i < messages.len(); i++ )
-            if ( messages[i] <= newresponse.len() )
+        for ( int i = 0; i < timestamps.len(); i++ )
+            if ( timestamps[i] <= newresponse.len() )
                 if ( i == 4 )
                     rconlast_discord_timestamp.append( newresponse[30] )
                 else if ( i == 3 )
