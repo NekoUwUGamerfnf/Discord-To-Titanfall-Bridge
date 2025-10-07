@@ -1,9 +1,11 @@
 # Titanfall To Discord
 
 Required To Send Messages To Discord
+
 `discordbridge_webhook`
 
 Sends Messages That `discordbridge_webhook` Didn't Send
+
 `discordbridge_commandlogwebhook`
 
 Sends ```Server Has Crashed And Or Restarted``` To discordbridge_webhook
