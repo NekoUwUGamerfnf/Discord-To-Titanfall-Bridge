@@ -2,7 +2,7 @@ global function discordbridge_init
 
 void function discordbridge_init()
 {
-    if ( GetConVarInt( "discordbridge_shouldsendmessageifservercrashandorrestart" ) == 1 )
+    if ( GetConVarInt( "discordbridge_shouldsendmessageifservercrashandorrestart" ) )
     {
         thread SendServerCrashedAndOrRestartedMessage()
         SetConVarInt( "discordbridge_shouldsendmessageifservercrashandorrestart", 0 )
