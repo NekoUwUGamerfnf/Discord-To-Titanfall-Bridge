@@ -225,7 +225,7 @@ void function PollDiscordMessages()
     string channelid = GetConVarString( "discordbridge_channelid" )
     HttpRequest request
     request.method = HttpRequestMethod.GET
-    string url = "https://discord.com/api/v10/channels/" + channelid + "/messages?limit=5"
+    string url = "https://discord.com/api/v9/channels/" + channelid + "/messages?limit=5"
     request.url = url
     request.headers = {
         [ "Authorization" ] = [ "Bot " + bottoken ],
@@ -263,7 +263,7 @@ void function RconPollDiscordMessages()
     string channelid = GetConVarString( "discordbridge_rconchannelid" )
     HttpRequest request
     request.method = HttpRequestMethod.GET
-    string url = "https://discord.com/api/v10/channels/" + channelid + "/messages?limit=5"
+    string url = "https://discord.com/api/v9/channels/" + channelid + "/messages?limit=5"
     request.url = url
     request.headers = {
         [ "Authorization" ] = [ "Bot " + bottoken ],
@@ -346,7 +346,7 @@ void function ThreadDiscordToTitanfallBridge( HttpRequestResponse response )
                 while ( meowest.find( "id" ) )
                     meowest = meowest.slice( 1 )
                 meowest = meowest.slice( 5 )
-                if ( meow.len() >= 5 && meow.slice( 0, 5 - meow.len() ).tolower() == "?rcon" && GetConVarString( "discordbridge_rconchannelid" ) == "" )
+                if ( meow.len() >= 5 && meow.slice( 0, 5 - meow.len() ).tolower() == "?rcon" && GetConVarString( "discordbridge_rconchannelid" ) == "" && GetConVarString( "discordbridge_rconusers" ) != "" )
                 {
                     meow = StringReplace( meow, "\\", "", true )
                     array<string> rconusers = split( GetConVarString( "discordbridge_rconusers" ), "," )
@@ -363,7 +363,7 @@ void function ThreadDiscordToTitanfallBridge( HttpRequestResponse response )
                     else
                         RedCircleDiscordToTitanfallBridge( meowest, GetConVarString( "discordbridge_channelid" ) )
                 }
-                if ( GetConVarString( "discordbridge_rconchannelid" ) == "" && ( meow.tolower() == "?rcon" || ( meow.len() >= 5 && meow.slice( 0, 5 - meow.len() ).tolower() == "?rcon" ) ) )
+                if ( ( meow.tolower() == "?rcon" || ( meow.len() >= 5 && meow.slice( 0, 5 - meow.len() ).tolower() == "?rcon" ) ) && GetConVarString( "discordbridge_rconchannelid" ) == "" && GetConVarString( "discordbridge_rconusers" ) != "" )
                     nyah = true
                 if ( meow.len() > 200 || meow.len() <= 0 )
                 {
@@ -470,7 +470,7 @@ void function GetUserNickname( string userid )
     string guildid = GetConVarString( "discordbridge_serverid" )
     HttpRequest request
     request.method = HttpRequestMethod.GET
-    string url = "https://discord.com/api/v10/guilds/" + guildid + "/members/" + userid
+    string url = "https://discord.com/api/v9/guilds/" + guildid + "/members/" + userid
     request.url = url
     request.headers = {
         [ "Authorization" ] = [ "Bot " + bottoken ],
@@ -555,7 +555,7 @@ void function RedCircleDiscordToTitanfallBridge( string meowest, string channeli
     string bottoken = GetConVarString( "discordbridge_bottoken" )
     HttpRequest request
     request.method = HttpRequestMethod.PUT
-    string url = "https://discord.com/api/v10/channels/" + channelid + "/messages/" + meowest + "/reactions/%F0%9F%94%B4/@me"
+    string url = "https://discord.com/api/v9/channels/" + channelid + "/messages/" + meowest + "/reactions/%F0%9F%94%B4/@me"
     request.url = url
     request.headers = {
         [ "Authorization" ] = [ "Bot " + bottoken ],
@@ -581,7 +581,7 @@ void function GreenCircleDiscordToTitanfallBridge( string meowest, string channe
     string bottoken = GetConVarString( "discordbridge_bottoken" )
     HttpRequest request
     request.method = HttpRequestMethod.PUT
-    string url = "https://discord.com/api/v10/channels/" + channelid + "/messages/" + meowest + "/reactions/%F0%9F%9F%A2/@me"
+    string url = "https://discord.com/api/v9/channels/" + channelid + "/messages/" + meowest + "/reactions/%F0%9F%9F%A2/@me"
     request.url = url
     request.headers = {
         [ "Authorization" ] = [ "Bot " + bottoken ],
