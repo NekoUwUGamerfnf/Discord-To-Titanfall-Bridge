@@ -348,7 +348,8 @@ void function ThreadDiscordToTitanfallBridge( HttpRequestResponse response )
                 meowest = meowest.slice( 5 )
                 if ( meow.len() >= 5 && meow.slice( 0, 5 - meow.len() ).tolower() == "?rcon" && GetConVarString( "discordbridge_rconchannelid" ) == "" && GetConVarString( "discordbridge_rconusers" ) != "" )
                 {
-                    meow = StringReplace( meow, "\\", "", true )
+                    meow = StringReplace( meow, "\\\\\\", "\\\\", true )
+                    meow = StringReplace( meow, "\\\\", "\\", true )
                     array<string> rconusers = split( GetConVarString( "discordbridge_rconusers" ), "," )
                     bool shouldruncommand = false
                     for ( int i = 0; i < rconusers.len(); i++ )
@@ -437,7 +438,8 @@ void function RconThreadDiscordToTitanfallBridge( HttpRequestResponse response )
                 meowest = meowest.slice( 5 )
                 if ( meow.len() >= 5 && meow.slice( 0, 5 - meow.len() ).tolower() == "?rcon" )
                 {
-                    meow = StringReplace( meow, "\\", "", true )
+                    meow = StringReplace( meow, "\\\\\\", "\\\\", true )
+                    meow = StringReplace( meow, "\\\\", "\\", true )
                     array<string> rconusers = split( GetConVarString( "discordbridge_rconusers" ), "," )
                     bool shouldruncommand = false
                     for ( int i = 0; i < rconusers.len(); i++ )
@@ -544,7 +546,8 @@ void function EndThreadDiscordToTitanfallBridge( string meow, string meower, str
 {
     GetUserNickname( meower )
     meower = GetUserTrueNickname( meower )
-    meow = StringReplace( meow, "\\", "", true )
+    meow = StringReplace( meow, "\\\\\\", "\\\\", true )
+    meow = StringReplace( meow, "\\\\", "\\", true )
     print( "[DiscordBridge] Messaging Players: [Discord] " + meower + ": " + meow )
     SendMessageToPlayers( "[38;2;88;101;242m" + "[Discord] " + meower + ": \x1b[0m" + meow )
     GreenCircleDiscordToTitanfallBridge( meowest, GetConVarString( "discordbridge_channelid" ) )
