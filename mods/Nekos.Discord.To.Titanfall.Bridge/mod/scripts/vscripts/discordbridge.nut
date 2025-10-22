@@ -78,23 +78,21 @@ ClServer_MessageStruct function LogMessage( ClServer_MessageStruct message )
     int playerteam = message.player.GetTeam()
     
     string prefix = ""
-    if ( !message.isTeam )
-        prefix = playername
+    string teamstr = ""
+    if ( playerteam <= 0 )
+        teamstr = "Spec"
+    else if ( playerteam == 1 )
+        teamstr = "None"
+    else if ( playerteam == 2 )
+        teamstr = "IMC"
+    else if ( playerteam == 3 )
+        teamstr = "Militia"
     else
-    {
-        string teamstr = ""
-        if ( playerteam <= 0 )
-            teamstr = "Spec"
-        else if ( playerteam == 1 )
-            teamstr = "None"
-        else if ( playerteam == 2 )
-            teamstr = "IMC"
-        else if ( playerteam == 3 )
-            teamstr = "Militia"
-        else
-            teamstr = "Both"
+        teamstr = "Both"
+    if ( message.isTeam )
         prefix = "[TEAM (" + teamstr + ")] " + playername
-    }
+    else
+        prefix = "(" + teamstr + ") " + playername
     
     string console_message = prefix + ": " + msg
     SendMessageToDiscord( console_message, false )
@@ -346,6 +344,7 @@ void function ThreadDiscordToTitanfallBridge( HttpRequestResponse response )
                 while ( meowest.find( "id" ) )
                     meowest = meowest.slice( 1 )
                 meowest = meowest.slice( 5 )
+                bool ranrconcommand = false
                 if ( meow.len() >= 5 && meow.slice( 0, 5 - meow.len() ).tolower() == "?rcon" && GetConVarString( "discordbridge_rconchannelid" ) == "" && GetConVarString( "discordbridge_rconusers" ) != "" )
                 {
                     meow = StringReplace( meow, "\\\"", "\"", true )
@@ -360,13 +359,14 @@ void function ThreadDiscordToTitanfallBridge( HttpRequestResponse response )
                         GreenCircleDiscordToTitanfallBridge( meowest, GetConVarString( "discordbridge_channelid" ) )
                         print( "[DiscordBridge] Running Rcon Command: " + meow )
                         ServerCommand( meow.slice( 5 ) )
+                        ranrconcommand = true
                     }
                     else
                         RedCircleDiscordToTitanfallBridge( meowest, GetConVarString( "discordbridge_channelid" ) )
                 }
                 if ( ( meow.tolower() == "?rcon" || ( meow.len() >= 5 && meow.slice( 0, 5 - meow.len() ).tolower() == "?rcon" ) ) && GetConVarString( "discordbridge_rconchannelid" ) == "" && GetConVarString( "discordbridge_rconusers" ) != "" )
                     nyah = true
-                if ( meow.len() > 200 || meow.len() <= 0 )
+                if ( !ranrconcommand && ( meow.len() > 200 || meow.len() <= 0 ) )
                 {
                     RedCircleDiscordToTitanfallBridge( meowest, GetConVarString( "discordbridge_channelid" ) )
                     nyah = true
