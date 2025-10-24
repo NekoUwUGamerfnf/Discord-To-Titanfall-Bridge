@@ -249,7 +249,7 @@ void function PollDiscordMessages()
     
     void functionref( HttpRequestFailure ) onFailure = void function ( HttpRequestFailure failure )
     {
-        print( "[Discord] Poll failed: " + failure.errorMessage )
+        print( "[DiscordBridge] Request failed: " + failure.errorMessage )
     }
     
     NSHttpRequest( request, onSuccess, onFailure )
@@ -287,7 +287,7 @@ void function RconPollDiscordMessages()
     
     void functionref( HttpRequestFailure ) onFailure = void function ( HttpRequestFailure failure )
     {
-        print( "[Discord] Poll failed: " + failure.errorMessage )
+        print( "[DiscordBridge] Request failed: " + failure.errorMessage )
     }
     
     NSHttpRequest( request, onSuccess, onFailure )
@@ -380,8 +380,8 @@ void function ThreadDiscordToTitanfallBridge( HttpRequestResponse response )
     }
     else
     {
-        print( "[Discord] Poll failed with status: " + response.statusCode.tostring() )
-        print( "[Discord] Response Body: " + response.body )
+        print( "[DiscordBridge] Request failed with status: " + response.statusCode.tostring() )
+        print( "[DiscordBridge] Response Body: " + response.body )
     }
 }
 
@@ -461,8 +461,8 @@ void function RconThreadDiscordToTitanfallBridge( HttpRequestResponse response )
     }
     else
     {
-        print( "[Discord] Poll failed with status: " + response.statusCode.tostring() )
-        print( "[Discord] Response Body: " + response.body )
+        print( "[DiscordBridge] Request failed with status: " + response.statusCode.tostring() )
+        print( "[DiscordBridge] Response Body: " + response.body )
     }
 }
 
@@ -497,14 +497,14 @@ void function GetUserNickname( string userid )
         }
         else
         {
-            print( "[Discord] Poll failed with status: " + response.statusCode.tostring() )
-            print( "[Discord] Response Body: " + response.body )
+            print( "[DiscordBridge] Request failed with status: " + response.statusCode.tostring() )
+            print( "[DiscordBridge] Response Body: " + response.body )
         }
     }
     
     void functionref( HttpRequestFailure ) onFailure = void function ( HttpRequestFailure failure )
     {
-        print( "[Discord] Poll failed: " + failure.errorMessage )
+        print( "[DiscordBridge] Request failed: " + failure.errorMessage )
     }
 
     NSHttpRequest( request, onSuccess, onFailure )
@@ -548,8 +548,8 @@ void function EndThreadDiscordToTitanfallBridge( string meow, string meower, str
     meower = GetUserTrueNickname( meower )
     meow = StringReplace( meow, "\\\"", "\"", true )
     meow = StringReplace( meow, "\\\\", "\\", true )
-    print( "[DiscordBridge] Messaging Players: [Discord] " + meower + ": " + meow )
-    SendMessageToPlayers( "[38;2;88;101;242m" + "[Discord] " + meower + ": \x1b[0m" + meow )
+    print( "[DiscordBridge] Messaging Players: [DiscordBridge] " + meower + ": " + meow )
+    SendMessageToPlayers( "[38;2;88;101;242m" + "[DiscordBridge] " + meower + ": \x1b[0m" + meow )
     GreenCircleDiscordToTitanfallBridge( meowest, GetConVarString( "discordbridge_channelid" ) )
 }
 
@@ -568,13 +568,13 @@ void function RedCircleDiscordToTitanfallBridge( string meowest, string channeli
     {
         if ( response.statusCode != 204 )
         {
-            print( "[Discord] Poll failed with status: " + response.statusCode.tostring() )
-            print( "[Discord] Response Body: " + response.body )
+            print( "[DiscordBridge] Request failed with status: " + response.statusCode.tostring() )
+            print( "[DiscordBridge] Response Body: " + response.body )
         }
     }
     void functionref( HttpRequestFailure ) onFailure = void function ( HttpRequestFailure failure )
     {
-        print( "[Discord] Poll failed: " + failure.errorMessage )
+        print( "[DiscordBridge] Request failed: " + failure.errorMessage )
     }
     NSHttpRequest( request, onSuccess, onFailure )
 }
@@ -594,13 +594,13 @@ void function GreenCircleDiscordToTitanfallBridge( string meowest, string channe
     {
         if ( response.statusCode != 204 )
         {
-            print( "[Discord] Poll failed with status: " + response.statusCode.tostring() )
-            print( "[Discord] Response Body: " + response.body )
+            print( "[DiscordBridge] Request failed with status: " + response.statusCode.tostring() )
+            print( "[DiscordBridge] Response Body: " + response.body )
         }
     }
     void functionref( HttpRequestFailure ) onFailure = void function ( HttpRequestFailure failure )
     {
-        print( "[Discord] Poll failed: " + failure.errorMessage )
+        print( "[DiscordBridge] Request failed: " + failure.errorMessage )
     }
     NSHttpRequest( request, onSuccess, onFailure )
 }
